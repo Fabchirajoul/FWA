@@ -1,0 +1,28 @@
+
+/** ADD YOUR AWESOME CODES HERE **/
+
+/* Center-align footer content and remove extra space */
+.footer-distributed {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0; /* Adjust as needed */
+    text-align: center;
+    margin: 0 auto;
+}
+
+/* Optional: set body to ensure footer sticks to the bottom */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+#contact, .copyrights {
+    margin-top: auto;
+}
+
+/* Ensure fields within contact form align properly */
+.contact_form .form-group {
+    margin-bottom: 20px;
+}
