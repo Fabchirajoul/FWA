@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Food Waste App</title>
+    <link rel="stylesheet" href="/static/css/style.css" />
+    <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet"> -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap"
+      rel="stylesheet"
+    />
+    <script src="/static/js/code.js"></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  </head>
+  <body x-data="FoodwasteApp">
+  <body>
+    <!-- STYLE BETTER WITHOUT MATERIALIZE -->
+    <div class="baner">
+      <div class="nav-links">
+        <a href="homepage.html">Home</a>
+        <!-- <a href="">About Us</a>
+            <a href="">Resources</a>
+            <a href="">Blog</a> -->
+        <a href="">Assessments</a>
+        <a href="">Games</a>
+        <a href="">Contact Us</a>
+        <a href="/logout">Log Out</a>
+      </div>
+    </div>
+
+    <!-- <div class="logo-container">
+        <img src="./images/logo.png" alt="logo" class="logo">
+    </div> -->
+
+    <div class="welcome-banner">
+      <h2>Welcome, {{user_name}}</h2>
+      <p>
+        Explore our educational modules below to learn more about food waste
+      </p>
+    </div>
+
+    <div class="cards-container">
+      <div class="card" onclick="location.href='page1.html';">
+        <div class="card-icon">🍎</div>
+        <h3>Food Waste General Knowledge and Understanding</h3>
+        <p>Learn the basics of food waste and its impact on society</p>
+      </div>
+
+      <div class="card" onclick="location.href='page2.html';">
+        <div class="card-icon">❓</div>
+        <h3>Common Causes and Misconceptions of Food Waste</h3>
+        <p>Understand why food waste occurs and common myths</p>
+      </div>
+
+      <div class="card" onclick="location.href='page3.html';">
+        <div class="card-icon">🌍</div>
+        <h3>Food Waste on the Environment</h3>
+        <p>Discover how food waste affects our environment</p>
+      </div>
+
+      <div class="card" onclick="location.href='page4.html';">
+        <div class="card-icon">🛡️</div>
+        <h3>Food Waste Prevention Methods</h3>
+        <p>Learn effective strategies to prevent food waste</p>
+      </div>
+
+      <div class="card" onclick="location.href='page5.html';">
+        <div class="card-icon">♻️</div>
+        <h3>Food Waste Management Methods</h3>
+        <p>Explore ways to manage and reduce food waste</p>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <div class="footer-content">
+        <p>&copy; 2024 Food Waste Awareness. All Rights Reserved.</p>
+      </div>
+    </footer>
+  </body>
+</html>

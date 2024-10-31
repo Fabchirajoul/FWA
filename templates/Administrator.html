@@ -1,317 +1,323 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <!-- Basic -->
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-
-    <!-- Mobile Metas -->
-    <meta
-      name="viewport"
-      content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
-
-    <!-- Site Metas -->
-    <title>Administrator -FWA</title>
-    <meta name="keywords" content="" />
-    <meta name="description" content="" />
-    <meta name="author" content="" />
-
-    <!-- Site Icons -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Food Waste App</title>
+    <link rel="stylesheet" href="/static/css/style.css" />
+    <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet"> -->
     <link
-      rel="shortcut icon"
-      href="/static/images2/Frame 44 (2).png"
-      type="image/x-icon"
+      href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap"
+      rel="stylesheet"
     />
-    <link rel="apple-touch-icon" href="/static/images/apple-touch-icon.png" />
-
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="/static/css/bootstrap.min.css" />
-    <!-- Site CSS -->
-    <link rel="stylesheet" href="/static/style.css" />
-    <!-- Responsive CSS -->
-    <link rel="stylesheet" href="/static/css/responsive.css" />
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="/static/css/custom.css" />
-    <link rel="stylesheet" href="/static/MINE/mine.css" />
-    <script src="/static/js/modernizr.js"></script>
-
-    <!-- Include Alpine.js library -->
+    <script src="/static/js/code.js"></script>
     <script
       defer
       src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
     ></script>
-    <link rel="stylesheet" href="/static/CSS/styles.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="/static/js/code.js"></script>
   </head>
-
-  <body id="page-top" class="politics_version" x-data="FoodwasteApp">
-    <!-- LOADER -->
-    <div id="preloader">
-      <div id="main-ld">
-        <div id="loader"></div>
+  <body x-data="FoodwasteApp">
+    <!-- STYLE BETTER WITHOUT MATERIALIZE -->
+    <div class="baner">
+      <div class="nav-links">
+        <a href="homepage.html">Home</a>
+        <!-- <a href="">About Us</a>
+            <a href="">Resources</a>
+            <a href="">Blog</a> -->
+        <a href="">Assessments</a>
+        <a href="">Games</a>
+        <a href="">Contact Us</a>
+        <a href="/logout">Log Out</a>
       </div>
     </div>
-    <!-- end loader -->
 
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav">
-      <div class="container">
-        <a class="navbar-brand js-scroll-trigger" href="#page-top">
-          <img
-            class="img-fluid"
-            src="/static/images2/Frame 44 (2).png"
-            alt=""
+    <!-- <div class="logo-container">
+        <img src="./images/logo.png" alt="logo" class="logo">
+    </div> -->
+
+    <div class="welcome-banner">
+      <h2>Welcome, {{user_name}}</h2>
+      <p>
+        Explore our educational modules below to learn more about food waste
+      </p>
+
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %} {% for category, message in messages %}
+      <div class="alert alert-{{ category }}"><h2>{{ message }}</h2></div>
+      {% endfor %} {% endif %} {% endwith %}
+    </div>
+
+    <div class="cards-container" x-show="Admin_Home_Page" x-cloak>
+      <div class="card">
+        <h3>FADD QUESTIONS TO A CATEGORY</h3>
+        <div>
+          <button class="section" x-on:click="openHome('add_new_questions')">
+            ADD
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>ADD QUESTION OPTION TO A CATEGORY</h3>
+        <div>
+          <button
+            class="section"
+            x-on:click="openHome('add_new_question_options')"
+          >
+            ADD
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Provide answers to a question category</h3>
+        <div>
+          <button
+            class="section"
+            x-on:click="openHome('provide_question_answers')"
+          >
+            PROVIDE
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>UPDATE QUESTION OPTION FOR A CATEGORY</h3>
+        <div>
+          <button
+            class="section"
+            x-on:click="openHome('update_question_options')"
+          >
+            UPDATE
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>VIEW ALL QUESTION</h3>
+        <div>
+          <button class="section" x-on:click="openHome('view_all_questions')">
+            VIEW
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>ADD NEW ADMIN USER</h3>
+        <div>
+          <button
+            class="section"
+            x-on:click="openHome('add_new_admin_user_account')"
+          >
+            ADD
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>VIEW ALL USER ACCOUNT</h3>
+        <div>
+          <button
+            class="section"
+            x-on:click="openHome('view_all_user_account')"
+          >
+            VIEW
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!--ADD NEW QUESTION FOR A CATEGORY-->
+    <form method="POST" action="/Add_new_question">
+      <div class="quiz-section" x-show="add_new_questions" x-cloak>
+        <div class="input-field">
+          <label for="dropdown">CHOOSE A CATEGORY</label>
+          <select id="dropdown" name="new_question_category" required>
+            <option value="" disabled selected>Choose your option</option>
+            <option value="FOOD WASTE GENERAL KNOWLEDGE">
+              FOOD WASTE GENERAL KNOWLEDGE
+            </option>
+            <option value="COMMON CAUSES AND MISCONCEPTION OF FOOD WASTE">
+              COMMON CAUSES AND MISCONCEPTION OF FOOD WASTE
+            </option>
+            <option value="FOOD WASTE ON THE ENVIRONMENT">
+              FOOD WASTE ON THE ENVIRONMENT
+            </option>
+            <option value="FOOD WASTE PREVENTION METHOD">
+              FOOD WASTE PREVENTION METHOD
+            </option>
+            <option value="FOOD WASTE MANAGEMENT METHOD">
+              FOOD WASTE MANAGEMENT METHOD
+            </option>
+          </select>
+        </div>
+        <div class="input-field">
+          <label for="text-input">Enter the question number</label>
+          <input
+            type="number"
+            id="text-input"
+            name="Question_option_ID_number"
+            placeholder="Enter the question numbber"
+            required
           />
-        </a>
-        <button
-          class="navbar-toggler navbar-toggler-right"
-          type="button"
-          data-toggle="collapse"
-          data-target="#navbarResponsive"
-          aria-controls="navbarResponsive"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          Menu
-          <i class="fa fa-bars"></i>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarResponsive">
-          <ul class="navbar-nav text-uppercase ml-auto">
-            <li class="nav-item">
-              <a class="nav-link js-scroll-trigger active" href="#home">Home</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link js-scroll-trigger" href="#about">About Us</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link js-scroll-trigger" href="#services">Services</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link js-scroll-trigger" href="#portfolio">Resources</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link js-scroll-trigger" href="#blog">Blog</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link js-scroll-trigger" href="./Assessment.html">Assessments</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link js-scroll-trigger" href="./Game.html">Games</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link js-scroll-trigger" href="#contact">Contact Us</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link js-scroll-trigger" href="/logout">Logout</a>
-            </li>
-          </ul>
+        </div>
+
+        <div class="input-field">
+          <label for="text-input">Enter the question text here</label>
+          <input
+            type="text"
+            id="text-input"
+            name="new_question"
+            placeholder="Enter the question"
+            required
+          />
+        </div>
+
+        <div class="input-field">
+          <label for="dropdown">SELECT AN ANSWER OPTION</label>
+          <select name="new_question_option" class="form-control" required>
+            <option value="" disabled selected>Select a question option</option>
+            <option value="Text area">Text area</option>
+            <option value="Dropdown">Dropdown</option>
+            <option value="Date and time">Date and time</option>
+            <option value="Tick box">Tick box</option>
+          </select>
+        </div>
+
+        <div>
+          <button type="submit" class="submit-button">Submit</button>
         </div>
       </div>
-    </nav>
-
-    <section
-      id="home"
-      class="main-banner parallaxie"
-      style="background: url('/static//images2/fod5.jpg')"
-    style="width:auo; height:150px">
-      <div class="heading" style="width:auo; height:150px">
-        <h1>Food Waste</h1>
-        <h3
-          class="cd-headline clip is-full-width"
-          style="width: auto; height: 2px"
-        >
-          <span>We specialize in </span>
-          <span class="cd-words-wrapper">
-            <b class="is-visible">Common causes of food waste</b>
-            <b>Food waste management methods</b>
-            <b>Common misconceptions of food waste</b>
-            <b>Food waste on the environment</b>
-          </span>
-          <div class="btn-ber">
-            <a class="get_btn hvr-bounce-to-top" href="#">Get started</a>
-            <a class="learn_btn hvr-bounce-to-top" href="#">Learn More</a>
-          </div>
-        </h3>
-      </div>
-    </section>
-
-    <!-- Admin Section -->
-    <div id="contact" class="section db">
-      <div class="container">
-        <div class="section-title text-center">
-          <h3>Administrator</h3>
-          {% with messages = get_flashed_messages(with_categories=true) %}
-          {% if messages %}
-              {% for category, message in messages %}
-                  <div class="alert alert-{{ category }}">{{ message }}</div>
-              {% endfor %}
-          {% endif %}
-          {% endwith %}
-          <a href="{{ url_for('administrator') }}" style="float: left">HOME</a>
-        </div>
-        <!-- Admin Home Page Options -->
-        <div class="container_admin" x-show="Admin_Home_Page" x-cloak>
-          <div class="card_admin">
-            <h3>Add new questions</h3>
-            <button class="submit-btn" x-on:click="openHome('add_new_questions')">ADD</button>
-          </div>
-
-          <div class="card_admin">
-            <h3>Add new question options</h3>
-            <button class="submit-btn" x-on:click="openHome('add_new_question_options')">ADD</button>
-          </div>
-
-          <div class="card_admin">
-            <h3>Provide Question Answer</h3>
-            <button class="submit-btn" x-on:click="openHome('provide_question_answers')">PROVIDE</button>
-          </div>
-
-          <div class="card_admin">
-            <h3>Update question options</h3>
-            <button class="submit-btn" x-on:click="openHome('update_question_options')">UPDATE</button>
-          </div>
-
-          <div class="card_admin">
-            <h3>View all questions</h3>
-            <button class="submit-btn" x-on:click="openHome('view_all_questions')">VIEW</button>
-          </div>
-
-          <div class="card_admin">
-            <h3>Add new user Admin account</h3>
-            <button class="submit-btn" x-on:click="openHome('add_new_admin_user_account')">ADD</button>
-          </div>
-
-          <div class="card_admin">
-            <h3>View all user accounts</h3>
-            <button class="submit-btn" x-on:click="openHome('view_all_user_account')">VIEW</button>
-          </div>
+    </form>
+    <!--ADD NEW QUESTION OPTIONS-->
+    <form method="POST" action="/Add_new_question_options">
+      <div class="quiz-section" x-show="add_new_question_options" x-cloak>
+        <div class="input-field">
+          <label for="dropdown">CHOOSE A CATEGORY</label>
+          <select id="dropdown" name="new_question_category" required>
+            <option value="" disabled selected>Choose your option</option>
+            <option value="FOOD WASTE GENERAL KNOWLEDGE">
+              FOOD WASTE GENERAL KNOWLEDGE
+            </option>
+            <option value="COMMON CAUSES AND MISCONCEPTION OF FOOD WASTE">
+              COMMON CAUSES AND MISCONCEPTION OF FOOD WASTE
+            </option>
+            <option value="FOOD WASTE ON THE ENVIRONMENT">
+              FOOD WASTE ON THE ENVIRONMENT
+            </option>
+            <option value="FOOD WASTE PREVENTION METHOD">
+              FOOD WASTE PREVENTION METHOD
+            </option>
+            <option value="FOOD WASTE MANAGEMENT METHOD">
+              FOOD WASTE MANAGEMENT METHOD
+            </option>
+          </select>
         </div>
 
-        <!-- Add New Questions -->
-        <div id="add_new_questions" class="section db" x-show="add_new_questions">
-          <div class="container">
-            <div class="section-title text-center">
-              <h3>ADD NEW QUESTIONS</h3>
-            </div>
-            <form method="POST" action="/Add_new_question">
-              <div class="form-group">
-                <label for="new_question">Question</label>
-                <input type="text" class="form-control" name="new_question" placeholder="Enter the question" required>
-              </div>
-              <div class="form-group">
-                <label for="new_question_option">Question Option</label>
-                <select name="new_question_option" class="form-control" required>
-                  <option value="" disabled selected>Select a question option</option>
-                  <option value="Text area">Text area</option>
-                  <option value="Dropdown">Dropdown</option>
-                  <option value="Date and time">Date and time</option>
-                  <option value="Tick box">Tick box</option>
-                </select>
-              </div>
-              <button type="submit" class="submit-btn-admin">Add Question</button>
-            </form>
-          </div>
+        <div class="input-field">
+          <label for="text-input"
+            >Enter the question ID to provide an answer option</label
+          >
+          <input
+            type="number"
+            id="text-input"
+            name="Question_option_ID"
+            placeholder="Enter the question ID to provide an answer option"
+            required
+          />
         </div>
 
-        <!-- Add Question Options -->
-        <div id="add_new_question_options" class="section db" x-show="add_new_question_options">
-          <div class="container">
-            <div class="section-title text-center">
-              <h3>ADD QUESTION OPTIONS FOR DROP DOWN AND TICK BOX</h3>
-            </div>
-            <form method="POST" action="/Add_new_question_options">
-              <div class="form-group">
-                <label for="question_id">Question ID</label>
-                <input type="number" class="form-control" name="Question_option_ID" placeholder="Enter the question ID" required>
-              </div>
-              <div class="form-group">
-                <label for="new_option">Question Option</label>
-                <input type="text" class="form-control" name="Question_option" placeholder="Enter the question option" required>
-              </div>
-              <button type="submit" class="submit-btn-admin">Add Option</button>
-            </form>
-          </div>
+        <div class="input-field">
+          <label for="text-input">Enter the question option</label>
+          <input
+            type="text"
+            name="Question_option"
+            placeholder="Enter the question option"
+            required
+          />
         </div>
 
-        <!-- Provide Question Answers -->
-        <div id="provide_question_answers" class="section db" x-show="provide_question_answers">
-          <div class="container">
-            <div class="section-title text-center">
-              <h3>PROVIDE ANSWER TO QUESTION OPTIONS</h3>
-            </div>
-            <form method="POST" action="/provide_question_option_answers">
-              <div class="form-group">
-                <label for="question_id">Question ID</label>
-                <input type="number" class="form-control" name="Question_option_ID" placeholder="Enter the question ID" required>
-              </div>
-              <div class="form-group">
-                <label for="option_answer">Option Answer</label>
-                <input type="text" class="form-control" name="Question_option_answer" placeholder="Provide an answer" required>
-              </div>
-              <button type="submit" class="submit-btn-admin">Provide Answer</button>
-            </form>
-          </div>
+        <div>
+          <button type="submit" class="submit-button">Submit</button>
         </div>
       </div>
-    </div>
+    </form>
 
-    <div class="copyrights">
-      <div class="container">
-        <div class="footer-distributed">
-          <a href="#">
-            <img src="/static/images2/Frame 44 (2).png" alt="" width="150px" />
-          </a>
-          <div class="footer-center">
-            <p class="footer-links" style="text-transform: lowercase">
-              <a href="#">food waste: foodwaste@gmail.com</a>
-            </p>
-            <p class="footer-company-name">
-              <a href="">Food Waste Management<br />University of Johannesburg, South Africa</a>
-            </p>
-          </div>
+    <!--ADD QUESTION OPTION ANSWER-->
+    <form method="POST" action="/provide_question_option_answers">
+      <div class="quiz-section" x-show="provide_question_answers" x-cloak>
+        <div class="input-field">
+          <label for="dropdown">CHOOSE A CATEGORY</label>
+          <select id="dropdown" name="new_question_category" required>
+            <option value="" disabled selected>Choose your option</option>
+            <option value="FOOD WASTE GENERAL KNOWLEDGE">
+              FOOD WASTE GENERAL KNOWLEDGE
+            </option>
+            <option value="COMMON CAUSES AND MISCONCEPTION OF FOOD WASTE">
+              COMMON CAUSES AND MISCONCEPTION OF FOOD WASTE
+            </option>
+            <option value="FOOD WASTE ON THE ENVIRONMENT">
+              FOOD WASTE ON THE ENVIRONMENT
+            </option>
+            <option value="FOOD WASTE PREVENTION METHOD">
+              FOOD WASTE PREVENTION METHOD
+            </option>
+            <option value="FOOD WASTE MANAGEMENT METHOD">
+              FOOD WASTE MANAGEMENT METHOD
+            </option>
+          </select>
+        </div>
+
+        <div class="input-field">
+          <label for="text-input"
+            >Enter the question ID to provide an answer option</label
+          >
+          <input
+            type="number"
+            id="text-input"
+            name="Question_option_ID"
+            placeholder="Enter the question ID"
+            required
+          />
+        </div>
+
+        <div class="input-field">
+          <label for="text-input">Enter the question option</label>
+          <input
+            type="text"
+            name="Question_option_answer"
+            placeholder="Provide an answer"
+            required
+          />
+        </div>
+
+        <div>
+          <button type="submit" class="submit-button">Submit</button>
         </div>
       </div>
-    </div>
+    </form>
+    <footer class="footer">
+      <div class="footer-content">
+        <p>&copy; 2024 Food Waste Awareness. All Rights Reserved.</p>
+      </div>
+    </footer>
 
-    <a href="#" id="scroll-to-top" class="dmtop global-radius">
-      <i class="fa fa-angle-up"></i>
-    </a>
     <script>
-      document.querySelectorAll(".video-overlay").forEach((overlay) => {
-        overlay.addEventListener("click", function () {
-          const video = this.previousElementSibling;
-          video.style.display = "block";
-          video.play();
-          this.style.display = "none";
+      // Wait for the page to load before running the script
+      document.addEventListener("DOMContentLoaded", function () {
+        // Select all elements with the alert class
+        const alerts = document.querySelectorAll(".alert");
+
+        // Set a timeout to hide each alert after 5 seconds (5000 milliseconds)
+        alerts.forEach((alert) => {
+          setTimeout(() => {
+            alert.style.transition = "opacity 0.5s ease"; // Smooth fade-out
+            alert.style.opacity = "0"; // Start fade-out
+            setTimeout(() => alert.remove(), 500); // Fully remove after fade-out
+          }, 5000);
         });
       });
     </script>
-    <script src="/static/js/all.js"></script>
-    <script src="/static/js/jquery.mobile.customized.min.js"></script>
-    <script src="/static/js/jquery.easing.1.3.js"></script>
-    <script src="/static/js/parallaxie.js"></script>
-    <script src="/static/js/headline.js"></script>
-    <script src="/static/js/jqBootstrapValidation.js"></script>
-    <script src="/static/js/contact_me.js"></script>
-    <script src="/static/js/custom.js"></script>
-    <script src="/static/js/jquery.vide.js"></script>
-    <script>
-      // Wait for the page to load before running the script
-      document.addEventListener("DOMContentLoaded", function() {
-          // Select all elements with the alert class
-          const alerts = document.querySelectorAll(".alert");
-  
-          // Set a timeout to hide each alert after 5 seconds (5000 milliseconds)
-          alerts.forEach(alert => {
-              setTimeout(() => {
-                  alert.style.transition = "opacity 0.5s ease"; // Smooth fade-out
-                  alert.style.opacity = "0"; // Start fade-out
-                  setTimeout(() => alert.remove(), 500); // Fully remove after fade-out
-              }, 5000);
-          });
-      });
-  </script>
   </body>
 </html>
