@@ -29,9 +29,9 @@ document.addEventListener("alpine:init", () => {
         } else if (currentSection == "provide_question_answers") {
           this.Admin_Home_Page = false;
           this.provide_question_answers = true;
-        } else if (currentSection == "update_question_option") {
+        } else if (currentSection == "update_question_options") {
           this.Admin_Home_Page = false;
-          this.update_question_option = true;
+          this.update_question_options = true;
         } else if (currentSection == "view_all_questions") {
           this.Admin_Home_Page = false;
           this.view_all_questions = true;

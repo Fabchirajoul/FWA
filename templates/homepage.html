@@ -22,11 +22,8 @@
     <!-- STYLE BETTER WITHOUT MATERIALIZE -->
     <div class="baner">
       <div class="nav-links">
-        <a href="homepage.html">Home</a>
-        <!-- <a href="">About Us</a>
-            <a href="">Resources</a>
-            <a href="">Blog</a> -->
-        <a href="">Assessments</a>
+        <a href="{{ url_for('user_account') }}">Home</a>
+ 
         <a href="">Games</a>
         <a href="">Contact Us</a>
         <a href="/logout">Log Out</a>
@@ -42,44 +39,439 @@
       <p>
         Explore our educational modules below to learn more about food waste
       </p>
+
+
+
+      {% if incorrect_questions %}
+      <div id="review-section">
+          <h3>Review Your Answers</h3>
+      
+          {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+              {% for category, message in messages %}
+                  <div class="alert alert-{{ category }}">{{ message }}</div>
+              {% endfor %}
+          {% endif %}
+          {% endwith %}
+      
+          <ul>
+              {% for question in incorrect_questions %}
+                  <li>
+                      <strong>Category:</strong> {{ question.category }}<br>
+                      <strong>Question:</strong> {{ question.question_text }}<br>
+                      <strong>Your Answer:</strong> {{ question.user_answer }}<br>
+                      <strong>Correct Answer:</strong> {{ question.correct_answer }}
+                  </li>
+              {% endfor %}
+          </ul>
+      </div>
+      {% endif %}
+      
+
+
+
     </div>
 
-    <div class="cards-container">
-      <div class="card" onclick="location.href='page1.html';">
+    <!--GENERAL -->
+    <div class="cards-container" x-show="Admin_Home_Page" x-cloak>
+      <div class="card">
         <div class="card-icon">🍎</div>
         <h3>Food Waste General Knowledge and Understanding</h3>
-        <p>Learn the basics of food waste and its impact on society</p>
+        <p>Learn the basics of food waste and its impact on society</p><br>
+        <button x-on:click="openHome('add_new_questions')" class="submit-button" style="background-color: grey;">Click to learn more</button>
       </div>
-
-      <div class="card" onclick="location.href='page2.html';">
+<!--COMMON CAUSES AND MISCONCEPTION OF FOOD WASTE-->
+      <div class="card" >
         <div class="card-icon">❓</div>
         <h3>Common Causes and Misconceptions of Food Waste</h3>
-        <p>Understand why food waste occurs and common myths</p>
+        <p>Understand why food waste occurs and common myths</p><br>
+        <button  x-on:click="openHome('add_new_question_options')" class="submit-button" style="background-color: grey;">Click to learn more</button>
       </div>
-
-      <div class="card" onclick="location.href='page3.html';">
+<!--FOOD WASTE ON THE ENVRONMENT-->
+      <div class="card">
         <div class="card-icon">🌍</div>
         <h3>Food Waste on the Environment</h3>
         <p>Discover how food waste affects our environment</p>
+        <br>
+        <button  x-on:click="openHome('provide_question_answers')" class="submit-button" style="background-color: grey;">Click to learn more</button>
+      
       </div>
-
-      <div class="card" onclick="location.href='page4.html';">
+<!--FOOD WASTE PREVENTION METHOD-->
+      <div class="card" >
         <div class="card-icon">🛡️</div>
         <h3>Food Waste Prevention Methods</h3>
         <p>Learn effective strategies to prevent food waste</p>
+        <br>
+        <button  x-on:click="openHome('update_question_options')" class="submit-button" style="background-color: grey;">Click to learn more</button>
+      
       </div>
-
-      <div class="card" onclick="location.href='page5.html';">
+<!--FOOD WASTE MANAGEMENT METHOD-->
+      <div class="card" >
         <div class="card-icon">♻️</div>
         <h3>Food Waste Management Methods</h3>
         <p>Explore ways to manage and reduce food waste</p>
+        <br>
+        <button  x-on:click="openHome('view_all_questions')" class="submit-button" style="background-color: grey;">Click to learn more</button>
+      
       </div>
     </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--GENERAL QUESTION SECTIONS-->
+
+    <div class="container" x-show="add_new_questions" x-cloak>
+      <h2 class="header">Food waste general knowledge and understanding</h2>
+      <form action="/user_submitted_answers" method="POST">
+
+        
+  
+          <div class="topic-description">
+              Food waste is a critical global issue that affects our environment, economy, and society. Understanding
+              how to reduce food waste can help us create a more sustainable future while saving money and resources.
+              This section will help you learn about the causes, impacts, and solutions to food waste.
+          </div>
+  
+          <h3 class="section-title">📝 Listen to the Lesson</h3>
+          <div class="audio-section">
+              <p>Listen to our expert explain the fundamentals of food waste and its impact on our planet.</p>
+              <audio class="audio-player" controls>
+                  <source src="/static/audios/Food waste general knowledge and understanding 2 (1).m4a" type="audio/mpeg">
+                  Your browser does not support the audio element.
+              </audio>
+          </div>
+  
+          <div class="divider"></div>
+  
+          <h3 class="section-title">✍️ TAKE A SHORT QUIZ ON GENERAL KNOWLEDGE OF FOOD WASTE</h3>
+  
+          {% for question in questions %}
+          <div class="quiz-section">
+              <div class="input-field">
+                  <span>
+                      
+                      <!-- Display the index next to the question text -->
+                      <label for="text-input">{{ question.id }}. {{ question.text }}</label>
+                  </span>
+                  {% if question.type == 'Text area' %}
+                      <textarea class="form-control" name="answer_{{ question.id }}" required></textarea>
+                  {% elif question.type == 'Date and time' %}
+                      <input type="date" class="form-control" name="answer_{{ question.id }}" required />
+                  {% elif question.type == 'Tick box' %}
+                      {% for option in question.options %}
+                          <div class="form-check">
+                              <input type="radio" class="form-check-input" name="answer_{{ question.id }}" value="{{ option }}">
+                              <label class="form-check-label">{{ option }}</label>
+                          </div>
+                      {% endfor %}
+                  {% elif question.type == 'Dropdown' %}
+                      <select class="form-control" name="answer_{{ question.id }}" required>
+                          <option value="" disabled selected>Choose your option</option>
+                          {% for option in question.options %}
+                              <option value="{{ option }}">{{ option }}</option>
+                          {% endfor %}
+                      </select>
+                  {% endif %}
+              </div>
+          </div>
+          {% endfor %}
+          <button type="submit" class="submit-button">Submit</button>
+      </form>
+  </div>
+  
+
+
+<!--COMMON CAUSES AND MISCONCEPTION OF FOOD WASTE-->
+<div class="container" x-show="add_new_question_options" x-cloak>
+  <h2 class="header">Common causes and misconceptions of food waste</h2>
+  <form action="/user_submitted_answers_for_common_cause" method="POST">
+
+      <div class="topic-description">
+          Many people have misconceptions about what causes food waste and why it occurs. From confusing date labels to improper storage methods, understanding these common causes is crucial. This section explores the everyday behaviors and systemic issues that contribute to food waste, helping you separate fact from fiction and identify areas where simple changes can make a big difference.
+      </div>
+
+      <h3 class="section-title">📝 Listen to the Lesson</h3>
+      <div class="audio-section">
+          <p>Listen to our expert debunk common food waste myths and explain the real causes behind this global issue.</p>
+          <audio class="audio-player" controls>
+              <source src="/static/audios/Common causes and misconceptions of food waste.wav" type="audio/mpeg">
+              Your browser does not support the audio element.
+          </audio>
+      </div>
+
+      <div class="divider"></div>
+
+      <h3 class="section-title">✍️ TAKE A SHORT QUIZ ON COMMON CAUSES AND MISCONCEPTION OF FOOD WASTE</h3>
+
+      {% for question in questions_common_cuase %}
+      <div class="quiz-section">
+          <div class="input-field">
+            <span>
+                      
+              <!-- Display the index next to the question text -->
+              <label for="text-input">{{ question.id }}. {{ question.text }}</label>
+          </span>
+              {% if question.type == 'Text area' %}
+                  <textarea class="form-control" name="answer_{{ question.id }}" required></textarea>
+              {% elif question.type == 'Date and time' %}
+                  <input type="date" class="form-control" name="answer_{{ question.id }}" required />
+              {% elif question.type == 'Tick box' %}
+                  {% for option in question.options %}
+                      <div class="form-check">
+                          <input type="radio" class="form-check-input" name="answer_{{ question.id }}" value="{{ option }}">
+                          <label class="form-check-label">{{ option }}</label>
+                      </div>
+                  {% endfor %}
+              {% elif question.type == 'Dropdown' %}
+                  <select class="form-control" name="answer_{{ question.id }}" required>
+                      <option value="" disabled selected>Choose your option</option>
+                      {% for option in question.options %}
+                          <option value="{{ option }}">{{ option }}</option>
+                      {% endfor %}
+                  </select>
+              {% endif %}
+          </div>
+      </div>
+      {% endfor %}
+      <button type="submit" class="submit-button">Submit</button>
+  </form>
+</div>
+
+
+
+
+
+<!--FOOD WASTE ON THE ENVRONMENT-->
+<div class="container" x-show="provide_question_answers" x-cloak>
+  <h2 class="header">Food waste on the environment</h2>
+  <form action="/user_submitted_answers_for_environmental_management" METHOD="POST">
+
+      <div class="topic-description">
+          Food waste has a profound impact on our environment, from greenhouse gas emissions in landfills to wasted water and land resources. When we throw away food, we're not just wasting the food itself, but all the resources that went into producing it. This section reveals the surprising environmental footprint of food waste and why reducing it is crucial for environmental conservation.
+      </div>
+
+      <h3 class="section-title">📝 Listen to the Lesson</h3>
+      <div class="audio-section">
+          <p>Listen to our expert explain how food waste affects our planet's ecosystems and contributes to climate change.</p>
+          <audio class="audio-player" controls>
+              <source src="/static/audios/Food waste on the environment.wav" type="audio/mpeg">
+              Your browser does not support the audio element.
+          </audio>
+      </div>
+
+      <div class="divider"></div>
+
+      <h3 class="section-title">✍️ Take the Quiz</h3>
+
+      {% for question in questions_env %}
+      <div class="quiz-section">
+          <div class="input-field">
+            <span>
+                      
+              <!-- Display the index next to the question text -->
+              <label for="text-input">{{ question.id }}. {{ question.text }}</label>
+          </span>
+              {% if question.type == 'Text area' %}
+                  <textarea class="form-control" name="answer_{{ question.id }}" required></textarea>
+              {% elif question.type == 'Date and time' %}
+                  <input type="date" class="form-control" name="answer_{{ question.id }}" required />
+              {% elif question.type == 'Tick box' %}
+                  {% for option in question.options %}
+                      <div class="form-check">
+                          <input type="radio" class="form-check-input" name="answer_{{ question.id }}" value="{{ option }}">
+                          <label class="form-check-label">{{ option }}</label>
+                      </div>
+                  {% endfor %}
+              {% elif question.type == 'Dropdown' %}
+                  <select class="form-control" name="answer_{{ question.id }}" required>
+                      <option value="" disabled selected>Choose your option</option>
+                      {% for option in question.options %}
+                          <option value="{{ option }}">{{ option }}</option>
+                      {% endfor %}
+                  </select>
+              {% endif %}
+          </div>
+      </div>
+      {% endfor %}
+      <button type="submit" class="submit-button">Submit</button>
+  </form>
+</div>
+
+
+<!--FOOD WASTE PREVENTION METHOD-->
+<div class="container" x-show="update_question_options" x-cloak>
+  <h2 class="header">Food waste prevention methods</h2>
+  <form action="/user_submitted_answers_for_food_waste_prevention_methof" method="POST">
+
+      <div class="topic-description">
+          Preventing food waste starts with smart planning and extends to proper storage and creative use of ingredients. This section provides practical, easy-to-implement strategies that can help you reduce food waste in your daily life. From shopping tips to storage solutions, you'll learn effective methods to make the most of your food and save money while helping the environment.
+      </div>
+
+      <h3 class="section-title">📝 Listen to the Lesson</h3>
+      <div class="audio-section">
+          <p>Listen to our expert share proven strategies and practical tips for preventing food waste in your home and community.</p>
+          <audio class="audio-player" controls>
+              <source src="/static/audios/Food waste prevention methods.wav" type="audio/mpeg">
+              Your browser does not support the audio element.
+          </audio>
+      </div>
+
+      <div class="divider"></div>
+
+      <h3 class="section-title">✍️ TAKE A SHORT QUIZ ON FOOD WASTE PREVENTION METHOD</h3>
+
+      {% for question in questions_prevention_method %}
+      <div class="quiz-section">
+          <div class="input-field">
+            <span>
+                      
+              <!-- Display the index next to the question text -->
+              <label for="text-input">{{ question.id }}. {{ question.text }}</label>
+          </span>
+              {% if question.type == 'Text area' %}
+                  <textarea class="form-control"  name="answer_{{ question.id }}" required></textarea>
+              {% elif question.type == 'Date and time' %}
+                  <input type="date" class="form-control" name="answer_{{ question.id }}" required />
+              {% elif question.type == 'Tick box' %}
+                  {% for option in question.options %}
+                      <div class="form-check">
+                          <input type="radio" class="form-check-input" name="answer_{{ question.id }}" value="{{ option }}">
+                          <label class="form-check-label">{{ option }}</label>
+                      </div>
+                  {% endfor %}
+              {% elif question.type == 'Dropdown' %}
+                  <select class="form-control" name="answer_{{ question.id }}" required>
+                      <option value="" disabled selected>Choose your option</option>
+                      {% for option in question.options %}
+                          <option value="{{ option }}">{{ option }}</option>
+                      {% endfor %}
+                  </select>
+              {% endif %}
+          </div>
+      </div>
+      {% endfor %}
+      <button type="submit" class="submit-button">Submit</button>
+  </form>
+</div>
+
+
+
+
+
+<!--FOOD WASTE MANAGEMENT METHOD-->
+<div class="container" x-show="view_all_questions" x-cloak>
+  <h2 class="header">Food waste management methods</h2>
+  <form action="/user_submitted_answers_for_food_waste_management_method" method="POST">
+
+      <div class="topic-description">
+          When food waste does occur, proper management is essential. From composting to donation programs, there are various ways to handle excess food responsibly. This section covers different food waste management techniques, helping you understand the hierarchy of food recovery and how to implement effective management strategies in your household or organization.
+      </div>
+
+      <h3 class="section-title">📝 Listen to the Lesson</h3>
+      <div class="audio-section">
+          <p>Listen to our expert discuss effective methods for managing food waste and creating sustainable disposal systems.</p>
+          <audio class="audio-player" controls>
+              <source src="/static/audios/Food waste management methods.wav" type="audio/mpeg">
+              Your browser does not support the audio element.
+          </audio>
+      </div>
+
+      <div class="divider"></div>
+
+      <h3 class="section-title">✍️ Take the Quiz</h3>
+
+      {% for question in questions_management_method %}
+      <div class="quiz-section">
+          <div class="input-field">
+            <span>
+                      
+              <!-- Display the index next to the question text -->
+              <label for="text-input">{{ question.id }}. {{ question.text }}</label>
+          </span>
+              {% if question.type == 'Text area' %}
+                  <textarea class="form-control" name="answer_{{ question.id }}" required></textarea>
+              {% elif question.type == 'Date and time' %}
+                  <input type="date" class="form-control" name="answer_{{ question.id }}" required />
+              {% elif question.type == 'Tick box' %}
+                  {% for option in question.options %}
+                      <div class="form-check">
+                          <input type="radio" class="form-check-input" name="answer_{{ question.id }}" value="{{ option }}">
+                          <label class="form-check-label">{{ option }}</label>
+                      </div>
+                  {% endfor %}
+              {% elif question.type == 'Dropdown' %}
+                  <select class="form-control" name="answer_{{ question.id }}" required>
+                      <option value="" disabled selected>Choose your option</option>
+                      {% for option in question.options %}
+                          <option value="{{ option }}">{{ option }}</option>
+                      {% endfor %}
+                  </select>
+              {% endif %}
+          </div>
+      </div>
+      {% endfor %}
+      <button type="submit" class="submit-button">Submit</button>
+  </form>
+</div>
+
+
+
+
+
+
+
+
+
+
 
     <footer class="footer">
       <div class="footer-content">
         <p>&copy; 2024 Food Waste Awareness. All Rights Reserved.</p>
       </div>
     </footer>
+
+
+    <script>
+        // JavaScript to hide the review section after 10 seconds (10000 milliseconds)
+        document.addEventListener("DOMContentLoaded", function() {
+            setTimeout(function() {
+                var reviewSection = document.getElementById("review-section");
+                if (reviewSection) {
+                    reviewSection.style.display = "none";
+                }
+            }, 5000); // Change the time (in milliseconds) as needed
+        });
+    </script>
+
+    <script>
+        // Wait for the page to load before running the script
+        document.addEventListener("DOMContentLoaded", function() {
+            // Select all elements with the alert class
+            const alerts = document.querySelectorAll(".alert");
+    
+            // Set a timeout to hide each alert after 5 seconds (5000 milliseconds)
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.transition = "opacity 0.5s ease"; // Smooth fade-out
+                    alert.style.opacity = "0"; // Start fade-out
+                    setTimeout(() => alert.remove(), 500); // Fully remove after fade-out
+                }, 5000);
+            });
+        });
+    </script>
+
+
   </body>
 </html>

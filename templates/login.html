@@ -213,5 +213,17 @@
       });
     </script>
 
+    <script>
+      // JavaScript to hide the review section after 10 seconds (10000 milliseconds)
+      document.addEventListener("DOMContentLoaded", function() {
+          setTimeout(function() {
+              var reviewSection = document.getElementById("review-section");
+              if (reviewSection) {
+                  reviewSection.style.display = "none";
+              }
+          }, 10000); // Change the time (in milliseconds) as needed
+      });
+  </script>
+
 </body>
 </html>
