@@ -674,6 +674,11 @@ h2 {
     color: green;
 }
 
+.grouping_word_game {
+
+    display:flex
+}
+
 
 /* Responsiveness for quiz pages */
 /* For medium screens (tablets)  */

@@ -47,12 +47,16 @@
       <p>
         Explore our educational modules below to learn more about food waste
       </p>
-
+      <h3>GENERAL RULES TO FOLLOW FOR THE WORD GAME</h3>   
+      <p>1. Words can be aligned vertically, horizontally or diagonal </p>
+      <p>2. Click on the characters once you find the words displayed on the word list </p>
+      <p>3. Double click to unselect a character </p>
+      <p>4. Good luck </p>
 
 
     
       <div id="review-section">
-          <h3>Review Your Answers</h3>
+          
       
           {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
@@ -61,7 +65,7 @@
               {% endfor %}
           {% endif %}
           {% endwith %}
-          
+       
       </div>
      
       <div class="words-to-find">
@@ -80,21 +84,26 @@
 
     <!--GENERAL -->
     <div class="cards-container" x-show="Admin_Home_Page" x-cloak>
-        <h2 class="header">PLAY A WORD GAME</h2>
-        <form method="POST" action="{{ url_for('user_account_game') }}">
-            <table class="word-search-grid" id="wordGrid">
-                {% for row_index, row in grid %}
-                    <tr>
-                        {% for col_index, cell in row %}
-                            <td class="grid-cell" data-row="{{ row_index }}" data-col="{{ col_index }}">{{ cell }}</td>
-                        {% endfor %}
-                    </tr>
-                {% endfor %}
-            </table>
-            <div class="text-center mt-3">
-                <button type="submit" class="submit-button">Submit</button>
-            </div>
-        </form>
+   <div class="">
+
+    <h2 class="header">PLAY A WORD GAME</h2>
+    <form method="POST" action="{{ url_for('user_account_game') }}">
+        <table class="word-search-grid" id="wordGrid">
+            {% for row_index, row in grid %}
+                <tr>
+                    {% for col_index, cell in row %}
+                        <td class="grid-cell" data-row="{{ row_index }}" data-col="{{ col_index }}">{{ cell }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </table>
+        <div class="text-center mt-3">
+            
+        </div>
+    </form>
+
+
+   </div>
         
       
 
@@ -160,6 +169,7 @@
             let selectedCells = [];
             let wordGrid = document.getElementById('wordGrid');
             let wordList = {{ words | tojson }}; // Array of words to find
+            let foundWords = [];
         
             wordGrid.addEventListener('click', function (event) {
                 if (event.target.classList.contains('grid-cell')) {
@@ -182,7 +192,7 @@
         
                     // Check if selected letters form a word
                     let formedWord = selectedCells.map(cell => cell.letter).join('');
-                    if (wordList.includes(formedWord)) {
+                    if (wordList.includes(formedWord) && !foundWords.includes(formedWord)) {
                         alert('Found: ' + formedWord);
         
                         // Cross out the word in the list
@@ -196,11 +206,21 @@
                             document.querySelector(`.grid-cell[data-row="${cell.row}"][data-col="${cell.col}"]`).classList.add('found');
                         });
         
+                        foundWords.push(formedWord); // Add the found word to the list
                         selectedCells = []; // Clear selection after finding a word
+        
+                        // Check if all words have been found
+                        if (foundWords.length === wordList.length) {
+                            setTimeout(() => {
+                                alert('GAME OVER');
+                                window.location.href = "{{ url_for('user_account') }}"; // Redirect to homepage
+                            }, 1000); // Delay to allow the user to see the message
+                        }
                     }
                 }
             });
         });
+        
         
         
     </script>
