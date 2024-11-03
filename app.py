@@ -1109,7 +1109,6 @@ words = [
     "WASTE",
     "MANAGEMENT",
     "PREVENTION",
-    "CHIETA",
     "COMMON",
     "CAUSES",
     "METHODS",
