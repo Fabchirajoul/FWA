@@ -1105,17 +1105,17 @@ def user_account_game():
 
 # Words to be included in the word search
 words = [
-    "TOOLKIT",
-    "SKILLS",
-    "DEVELOPMENT",
-    "LEGISLATION",
+    "FOOD",
+    "WASTE",
+    "MANAGEMENT",
+    "PREVENTION",
     "CHIETA",
-    "GIFT",
-    "LAWS",
-    "MIDRAND",
-    "COMMITTEE",
-    "CHEMICAL",
-    "PARIS"
+    "COMMON",
+    "CAUSES",
+    "METHODS",
+    "ENVIRONMENT",
+    "KNOWLEDGE",
+    "GENERAL"
 ]
 
 grid_size = 12

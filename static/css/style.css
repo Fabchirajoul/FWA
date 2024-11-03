@@ -606,6 +606,75 @@ h2 {
 }
 
 
+.word-search-grid {
+    border-collapse: collapse;
+    margin: 0 auto;
+}
+
+.word-search-grid td {
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    border: 1px solid #ddd;
+    font-size: 1.2em;
+}
+
+.grid-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.words-to-find {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.words-to-find ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.words-to-find li {
+    font-size: 1.1em;
+}
+.grid-cell {
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    border: 1px solid #ddd;
+    font-size: 1.2em;
+    cursor: pointer;
+}
+.selected {
+    background-color: yellow;
+}
+.word-item.found {
+    text-decoration: line-through;
+    color: green;
+}
+
+.grid-cell {
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.selected {
+    background-color: yellow;
+}
+
+.found {
+    background-color: lightgreen;
+    color: white;
+    pointer-events: none; /* Prevent further selection */
+}
+
+.word-item.found {
+    text-decoration: line-through;
+    color: green;
+}
+
+
 /* Responsiveness for quiz pages */
 /* For medium screens (tablets)  */
 @media screen and (max-width: 768px) {
