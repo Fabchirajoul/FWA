@@ -1,172 +1,215 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <!-- Basic -->
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">   
-   
-    <!-- Mobile Metas -->
-    <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Food Waste App</title>
+    <link rel="stylesheet" href="/static/css/style.css" />
+    <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet"> -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap"
+      rel="stylesheet"
+    />
+    <script src="/static/js/code.js"></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        .word-search-grid {
+            border-collapse: collapse;
+            margin: 0 auto;
+        }
+        
+        .word-search-grid td {
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            border: 1px solid #ddd;
+            font-size: 1.2em;
+        }
+        
+        .grid-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .words-to-find {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .words-to-find ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        
+        .words-to-find li {
+            font-size: 1.1em;
+        }
+        .grid-cell {
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            border: 1px solid #ddd;
+            font-size: 1.2em;
+            cursor: pointer;
+        }
+        .selected {
+            background-color: yellow;
+        }
+        .word-item.found {
+            text-decoration: line-through;
+            color: green;
+        }
+
+        .grid-cell {
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .selected {
+            background-color: yellow;
+        }
+        
+        .found {
+            background-color: lightgreen;
+            color: white;
+            pointer-events: none; /* Prevent further selection */
+        }
+        
+        .word-item.found {
+            text-decoration: line-through;
+            color: green;
+        }
+        
+
+
+
+    </style>
+  </head>
+  <body x-data="FoodwasteApp">
+  <body>
+    <!-- STYLE BETTER WITHOUT MATERIALIZE -->
+    <div class="baner">
+      <div class="nav-links">
+        <a href="{{ url_for('user_account') }}">Home</a>
  
-    <!-- Site Metas -->
-    <title>User - FWA</title>  
-    <meta name="keywords" content="">
-    <meta name="description" content="">
-    <meta name="author" content="">
-
-    <!-- Site Icons -->
-    <link rel="shortcut icon" href="/static/images2/Frame 44 (2).png" type="image/x-icon" />
-    <link rel="apple-touch-icon" href="/static/images/apple-touch-icon.png">
-
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
-    <!-- Site CSS -->
-    <link rel="stylesheet" href="/static/style.css">
-    <!-- Responsive CSS -->
-    <link rel="stylesheet" href="/static/css/responsive.css">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="/static/css/custom.css">
-    
-    <script src="/static/js/modernizr.js"></script>
-</head>
-
-<body id="page-top" class="politics_version">
-    <!-- LOADER -->
-    <div id="preloader">
-        <div id="main-ld">
-			<div id="loader"></div>  
-		</div>
-    </div><!-- end loader -->
-    <!-- END LOADER -->
-	
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav">
-      <div class="container">
-        <a class="navbar-brand js-scroll-trigger" href="#page-top">
-			<img class="img-fluid" src="/static/images2/Frame 44 (2).png" alt="" />
-		</a>
-        <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-          Menu
-          <i class="fa fa-bars"></i>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarResponsive">
-          <ul class="navbar-nav text-uppercase ml-auto">
-            <li class="nav-item"><a class="nav-link js-scroll-trigger active" href="#home">Home</a></li>
-            <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#about">About Us</a></li>
-            <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#services">Services</a></li>
-            <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#portfolio">Resources</a></li>
-            <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#blog">Blog</a></li>
-			<li class="nav-item"><a class="nav-link js-scroll-trigger" href="./Assessment.html">Assessments</a></li>
-			<li class="nav-item"><a class="nav-link js-scroll-trigger" href="./Game.html">Games</a></li>
-            <li class="nav-item"><a class="nav-link js-scroll-trigger" href="#contact">Contact Us</a></li>
-			<li class="nav-item"><a class="nav-link js-scroll-trigger" href="/logout">Logout</a></li>
-          </ul>
-        </div>
+        <a href="{{ url_for('user_account_game') }}">Games</a>
+        <a href="">Contact Us</a>
+        <a href="/logout">Log Out</a>
       </div>
-    </nav>
-	
-	<section id="home" class="main-banner parallaxie" style="background: url('/static/images2/fod5.jpg')" >
-		<div class="heading">
-			<h1>Food Waste</h1>			
-			<h3 class="cd-headline clip is-full-width" style="width:auto; height: 2px;">
-				<span>We specialize in </span>
-				<span class="cd-words-wrapper">
-					<b class="is-visible">Common causes of food waste</b>
-					<b>Food waste management methods</b>
-					<b>Common misconceptions of food waste</b>
-					<b>Food waste on the environment</b>
-				</span>
-				<div class="btn-ber">
-					<a class="get_btn hvr-bounce-to-top" href="#">Get started</a>
-					<a class="learn_btn hvr-bounce-to-top" href="#">Learn More</a>
-				</div>
-			</h3>
-		</div>
-	</section>
-
-    <div id="contact" class="section db">
-        <div class="container">
-            <div class="section-title text-center">
-                <h3>User Account GAME</h3>
-                {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
-                    {% for category, message in messages %}
-                        <div class="alert alert-{{ category }}">{{ message }}</div>
-                    {% endfor %}
-                {% endif %}
-                {% endwith %}
-            </div>
-
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="contact_form">
-                        <form method="POST" action="{{ url_for('user_account_game') }}">
-                          <table class="crossword-table">
-                              {% for row in range(1, 13) %}
-                                  <tr>
-                                      {% for col in range(1, 13) %}
-                                          {% set cell_key = row ~ '_' ~ col %}
-                                          {% if cell_key in correct_answers %}
-                                              <td class="input-cell">
-                                                  <input type="text" name="answer_{{ row }}_{{ col }}" maxlength="1" class="form-control">
-                                              </td>
-                                          {% else %}
-                                              <td></td>
-                                          {% endif %}
-                                      {% endfor %}
-                                  </tr>
-                              {% endfor %}
-                          </table>
-                          <div class="text-center mt-3">
-                              <button type="submit" class="btn btn-primary">Submit</button>
-                          </div>
-                      </form>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
-    <div class="copyrights">
-        <div class="container">
-            <div class="footer-distributed">
-				<a href="#"><img src="/static/images2/Frame 44 (2).png" alt="" width="150px" /></a>
-                <div class="footer-center">
-					<p class="footer-links" style="text-transform: lowercase;">
-						<a href="#">food waste: foodwaste@gmail.com</a>
-                    </p>
-                    <p class="footer-company-name"><a href="#">Food Waste Management <br>University of Johannesburg, South Africa</a></p>
-                </div>
-            </div>
-        </div>
+    <!-- <div class="logo-container">
+        <img src="./images/logo.png" alt="logo" class="logo">
+    </div> -->
+
+    <div class="welcome-banner">
+      <h2>Welcome, {{user_name}}</h2>
+      <p>
+        Explore our educational modules below to learn more about food waste
+      </p>
+
+
+
+    
+      <div id="review-section">
+          <h3>Review Your Answers</h3>
+      
+          {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+              {% for category, message in messages %}
+                  <div class="alert alert-{{ category }}">{{ message }}</div>
+              {% endfor %}
+          {% endif %}
+          {% endwith %}
+          
+      </div>
+     
+      <div class="words-to-find">
+        <h3>Words to Find:</h3>
+        <ul id="wordList">
+            {% for word in words %}
+                <li class="word-item" data-word="{{ word }}">{{ word }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    
+
+
+
     </div>
 
-    <a href="#" id="scroll-to-top" class="dmtop global-radius"><i class="fa fa-angle-up"></i></a>
+    <!--GENERAL -->
+    <div class="cards-container" x-show="Admin_Home_Page" x-cloak>
+        <h2 class="header">PLAY A WORD GAME</h2>
+        <form method="POST" action="{{ url_for('user_account_game') }}">
+            <table class="word-search-grid" id="wordGrid">
+                {% for row_index, row in grid %}
+                    <tr>
+                        {% for col_index, cell in row %}
+                            <td class="grid-cell" data-row="{{ row_index }}" data-col="{{ col_index }}">{{ cell }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </table>
+            <div class="text-center mt-3">
+                <button type="submit" class="submit-button">Submit</button>
+            </div>
+        </form>
+        
+      
+
+   
+    </div>
+
+
+
+
+
+
+
+    <footer class="footer">
+      <div class="footer-content">
+        <p>&copy; 2024 Food Waste Awareness. All Rights Reserved.</p>
+      </div>
+    </footer>
+
 
     <script>
-      document.querySelectorAll('.video-overlay').forEach(overlay => {
-        overlay.addEventListener('click', function() {
-        const video = this.previousElementSibling; // Get the video element
-        video.style.display = 'block'; // Ensure the video is displayed
-        video.play(); // Play the video
-        this.style.display = 'none'; // Hide the overlay
+        // JavaScript to hide the review section after 10 seconds (10000 milliseconds)
+        document.addEventListener("DOMContentLoaded", function() {
+            setTimeout(function() {
+                var reviewSection = document.getElementById("review-section");
+                if (reviewSection) {
+                    reviewSection.style.display = "none";
+                }
+            }, 5000); // Change the time (in milliseconds) as needed
         });
-      });
-      </script>
-      <script src="/static/js/all.js"></script>
-      <!-- Camera Slider -->
-      <script src="/static/js/jquery.mobile.customized.min.js"></script>
-      <script src="/static/js/jquery.easing.1.3.js"></script> 
-      <script src="/static/js/parallaxie.js"></script>
-      <script src="/static/js/headline.js"></script>
-      <!-- Contact form JavaScript -->
-      <script src="/static/js/jqBootstrapValidation.js"></script>
-      <script src="/static/js/contact_me.js"></script>
-      <!-- ALL PLUGINS -->
-      <script src="/static/js/custom.js"></script>
-      <script src="/static/js/jquery.vide.js"></script>
-	
-	<script>
+    </script>
+
+    <script>
+        // Wait for the page to load before running the script
+        document.addEventListener("DOMContentLoaded", function() {
+            // Select all elements with the alert class
+            const alerts = document.querySelectorAll(".alert");
+    
+            // Set a timeout to hide each alert after 5 seconds (5000 milliseconds)
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.transition = "opacity 0.5s ease"; // Smooth fade-out
+                    alert.style.opacity = "0"; // Start fade-out
+                    setTimeout(() => alert.remove(), 500); // Fully remove after fade-out
+                }, 5000);
+            });
+        });
+    </script>
+
+    <script>
 		document.addEventListener("DOMContentLoaded", function() {
 			const alerts = document.querySelectorAll(".alert");
 			alerts.forEach(alert => {
@@ -177,5 +220,57 @@
 			});
 		});
 	</script>
-</body>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            let selectedCells = [];
+            let wordGrid = document.getElementById('wordGrid');
+            let wordList = {{ words | tojson }}; // Array of words to find
+        
+            wordGrid.addEventListener('click', function (event) {
+                if (event.target.classList.contains('grid-cell')) {
+                    event.target.classList.toggle('selected');
+        
+                    let cellRow = event.target.getAttribute('data-row');
+                    let cellCol = event.target.getAttribute('data-col');
+                    let cellLetter = event.target.innerText;
+        
+                    // Check if cell is already selected
+                    let cellIndex = selectedCells.findIndex(
+                        cell => cell.row === cellRow && cell.col === cellCol
+                    );
+        
+                    if (cellIndex === -1) {
+                        selectedCells.push({ row: cellRow, col: cellCol, letter: cellLetter });
+                    } else {
+                        selectedCells.splice(cellIndex, 1); // Deselect the cell
+                    }
+        
+                    // Check if selected letters form a word
+                    let formedWord = selectedCells.map(cell => cell.letter).join('');
+                    if (wordList.includes(formedWord)) {
+                        alert('Found: ' + formedWord);
+        
+                        // Cross out the word in the list
+                        let wordElement = document.querySelector(`.word-item[data-word="${formedWord}"]`);
+                        if (wordElement) {
+                            wordElement.classList.add('found');
+                        }
+        
+                        // Highlight the found cells in the grid
+                        selectedCells.forEach(cell => {
+                            document.querySelector(`.grid-cell[data-row="${cell.row}"][data-col="${cell.col}"]`).classList.add('found');
+                        });
+        
+                        selectedCells = []; // Clear selection after finding a word
+                    }
+                }
+            });
+        });
+        
+        
+    </script>
+
+
+  </body>
 </html>

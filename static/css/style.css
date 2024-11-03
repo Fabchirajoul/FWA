@@ -555,6 +555,57 @@ h2 {
 }
 
 
+
+
+
+.crossword-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.crossword-table td {
+    border: 1px solid #ccc;
+    width: 40px;
+    height: 40px;
+    text-align: center;
+    vertical-align: middle;
+    background-color: #f9f9f9;
+}
+
+.crossword-table td.input-cell {
+    background-color: #ffffff;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.crossword-table td input {
+    width: 100%;
+    height: 100%;
+    border: none;
+    outline: none;
+    text-align: center;
+    font-size: 16px;
+    background-color: transparent;
+}
+
+.crossword-table td input:focus {
+    border: 1px solid #6a994e;
+    background-color: #e6f5d0;
+}
+
+.crossword-table td input::placeholder {
+    color: #ddd;
+    font-style: italic;
+}
+
+/* Hover effect */
+.crossword-table td:hover {
+    background-color: #e6f5d0;
+    cursor: pointer;
+}
+
+
 /* Responsiveness for quiz pages */
 /* For medium screens (tablets)  */
 @media screen and (max-width: 768px) {
@@ -584,6 +635,15 @@ h2 {
 
     .submit-button,
     .back-button {
+        font-size: 14px;
+    }
+
+    .crossword-table td {
+        width: 30px;
+        height: 30px;
+    }
+
+    .crossword-table td input {
         font-size: 14px;
     }
 }
@@ -635,5 +695,14 @@ h2 {
     .input-field {
         width: 100%;
         padding: 8px;
+    }
+
+    .crossword-table td {
+        width: 25px;
+        height: 25px;
+    }
+
+    .crossword-table td input {
+        font-size: 12px;
     }
 }

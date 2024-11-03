@@ -1078,48 +1078,96 @@ def UserAnswersManagementMethod():
 
 
 
-# Sample answers for the crossword game
-correct_answers = {
-    "4": "PACKAGING",
-    "5": "FOOD",
-    "6": "REFRIGERATOR",
-    "7": "STORAGE"
-}
+import random
 
 
 # User account redirected page
 @app.route('/user_account_game', methods=['GET', 'POST'])
 def user_account_game():
-    user_name = session.get('name', 'User')  # Retrieve the user's name from the session
+    questions = get_all_questions()  # Retrieve all questions with options from the database
+    questions_prevention_method = get_all_questions_for_prevention_method() 
+    questions_management_method = get_all_questions_for_management_waste()
+    questions_env = get_all_questions_for_environmental_waste()
+    questions_common_cuase = get_all_questions_for_common_cause_waste()
+    submitted_category = "FOOD WASTE PREVENTION METHOD"
+    user_name = session.get('name', 'User')  # Retrieve the user's name from session
     
-    # Correct answers for crossword cells based on the provided layout
-    correct_answers = {
-        "4_1": "P", "4_2": "A", "4_3": "C", "4_4": "K", "4_5": "A", "4_6": "G", "4_7": "I", "4_8": "N", "4_9": "G",
-        "5_6": "F", "5_7": "O", "5_8": "O", "5_9": "D",
-        "6_1": "R", "6_2": "E", "6_3": "F", "6_4": "R", "6_5": "I", "6_6": "G", "6_7": "E", "6_8": "R", "6_9": "A", "6_10": "T", "6_11": "O", "6_12": "R",
-        "7_7": "S", "7_8": "T", "7_9": "O", "7_10": "R", "7_11": "A", "7_12": "G", "7_13": "E"
-    }
+    grid = create_word_search()
 
-    if request.method == 'POST':
-        # Collect user's answers from the form
-        user_answers = {f"{row}_{col}": request.form.get(f"answer_{row}_{col}", "").upper()
-                        for row in range(1, 13) for col in range(1, 13) if f"{row}_{col}" in correct_answers}
+    # Enumerate the grid for use in the template
+    enumerated_grid = [(i, [(j, cell) for j, cell in enumerate(row)]) for i, row in enumerate(grid)]
 
-        # Check answers
-        correct_count = sum(1 for key, value in user_answers.items() if value == correct_answers.get(key, ""))
-        total_clues = len(correct_answers)
-
-        # Calculate correctness
-        if correct_count == total_clues:
-            flash("Congratulations! You've solved the crossword puzzle!", "success")
-        else:
-            flash(f"You got {correct_count}/{total_clues} correct. Try again!", "warning")
-
-    # Pass the correct answers dictionary to help render the crossword structure
-    return render_template('homepage.html', user_name=user_name, correct_answers=correct_answers)
+    return render_template('userAccountGame.html', user_name=user_name, questions=questions, 
+                           questions_env=questions_env, questions_prevention_method=questions_prevention_method,
+                           questions_management_method=questions_management_method, questions_common_cuase=questions_common_cuase, 
+                           grid=enumerated_grid, words=words)
 
 
+# Words to be included in the word search
+words = [
+    "TOOLKIT",
+    "SKILLS",
+    "DEVELOPMENT",
+    "LEGISLATION",
+    "CHIETA",
+    "GIFT",
+    "LAWS",
+    "MIDRAND",
+    "COMMITTEE",
+    "CHEMICAL",
+    "PARIS"
+]
 
+grid_size = 12
+
+def create_word_search():
+    """Generate the word search grid and place the words."""
+    grid = [[' ' for _ in range(grid_size)] for _ in range(grid_size)]
+
+    def can_place_word(word, row, col, direction):
+        """Check if a word can be placed starting at (row, col) in a given direction."""
+        for i in range(len(word)):
+            if direction == 'row':
+                if col + len(word) > grid_size or (grid[row][col + i] != ' ' and grid[row][col + i] != word[i]):
+                    return False
+            elif direction == 'column':
+                if row + len(word) > grid_size or (grid[row + i][col] != ' ' and grid[row + i][col] != word[i]):
+                    return False
+            elif direction == 'diagonal':
+                if row + len(word) > grid_size or col + len(word) > grid_size or (grid[row + i][col + i] != ' ' and grid[row + i][col + i] != word[i]):
+                    return False
+        return True
+
+    def place_word(word):
+        """Place a word on the grid in a random direction."""
+        directions = ['row', 'column', 'diagonal']
+        placed = False
+        while not placed:
+            direction = random.choice(directions)
+            row = random.randint(0, grid_size - 1)
+            col = random.randint(0, grid_size - 1)
+
+            if can_place_word(word, row, col, direction):
+                for i in range(len(word)):
+                    if direction == 'row':
+                        grid[row][col + i] = word[i]
+                    elif direction == 'column':
+                        grid[row + i][col] = word[i]
+                    elif direction == 'diagonal':
+                        grid[row + i][col + i] = word[i]
+                placed = True
+
+    # Place all words in the grid
+    for word in words:
+        place_word(word)
+
+    # Fill empty cells with random letters
+    for i in range(grid_size):
+        for j in range(grid_size):
+            if grid[i][j] == ' ':
+                grid[i][j] = random.choice('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
+
+    return grid
 
 
 
