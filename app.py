@@ -112,18 +112,18 @@ def create_food_wastre_on_environment_question_table():
     connection.commit()
     connection.close()
     
-    
-def create_tabel_for_anagram_environmental_table():
+def create_table_for_anagram_environmental_table():
     connection = sqlite3.connect('FoodwasteAppdatabase.db')
     cursor = connection.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS EnvironmnentaAnagram (
             id INTEGER PRIMARY KEY,
-            QMixedWords TEXT NOT NULL
+            EnvAnagramMixedWords TEXT NOT NULL
         )
     ''')
     connection.commit()
-    connection.close()  
+    connection.close()
+  
     
     
     
@@ -225,7 +225,7 @@ create_food_wastre_prevention_method_question_table()
 create_food_waste_management_method_question_table()
 create_user_answer_submission_table() 
 create_table_for_common_causes_game() 
-create_tabel_for_anagram_environmental_table()
+create_table_for_anagram_environmental_table()
 
 
 
@@ -979,7 +979,35 @@ def CommonCauseGame():
     # Pass user name to the template
     return render_template('Administrator.html', user_name=user_name)
 
+# Environmental anagram game word creation
+@app.route('/add_words_for_environmental_anagram_game', methods=['GET', 'POST'])
+def EnvironmentalAnagramGame():
+    user_name = session.get('name', 'User')  # Retrieve the user's name from session
 
+    if request.method == 'POST':
+        AnagramWords = request.form['anagram_text_description']
+
+        
+
+        connection = sqlite3.connect('FoodwasteAppdatabase.db')
+        cursor = connection.cursor()
+
+        cursor.execute(
+    'INSERT INTO EnvironmnentaAnagram (EnvAnagramMixedWords) VALUES (?)',
+    (AnagramWords,)
+)
+
+  
+        
+        connection.commit()
+        connection.close()
+
+        # Flash success message and redirect
+        flash('successfully added!', 'success')
+        return redirect('/Administrator_account')
+
+    # Pass user name to the template
+    return render_template('Administrator.html', user_name=user_name)
 
 
 # Randomizing the records in the commonGame table
@@ -1058,25 +1086,6 @@ def common_causes_game_check(form_data):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # User account redirected page
 @app.route('/user_account_common_word_game', methods=['GET', 'POST'])
 def user_account_common_word_game():
@@ -1094,18 +1103,103 @@ def user_account_common_word_game():
     questions_common_cuase = get_all_questions_for_common_cause_waste()
     random_records = get_random_common_cause_records()
     grid = create_word_search()
+    mixed_words = get_mixed_anagram_words()
     
     user_name = session.get('name', 'User')  # Retrieve the user's name from session
 
     return render_template('userAccountGame1.html', user_name=user_name, questions=questions, 
                            questions_env=questions_env, questions_prevention_method=questions_prevention_method,
                            questions_management_method=questions_management_method, questions_common_cuase=questions_common_cuase, 
-                           records=random_records, grid=grid)
+                           records=random_records, grid=grid, mixed_words=mixed_words)
+
+# Mixing the words for the anagram game
+
+def get_mixed_anagram_words():
+    # Connect to the database
+    connection = sqlite3.connect('FoodwasteAppdatabase.db')
+    cursor = connection.cursor()
+
+    # Fetch all words from the EnvAnagramMixedWords column in the EnvironmnentaAnagram table
+    cursor.execute("SELECT EnvAnagramMixedWords FROM EnvironmnentaAnagram")
+    words = cursor.fetchall()
+    connection.close()
+
+    # Create a list of mixed words
+    mixed_words = []
+    for word in words:
+        word = word[0]  # Extract the string from the tuple
+        mixed_word = ''.join(random.sample(word, len(word)))  # Shuffle the letters
+        mixed_words.append(mixed_word)
+
+    return mixed_words
+
+@app.route('/user_account_anagram_environmental', methods=['GET', 'POST'])
+def user_anagram_game():
+    if request.method == 'POST':
+        # Retrieve the form data (user-arranged words)
+        form_data = request.form.getlist("Arranged_words")
+
+        # Fetch the correct words from the database
+        connection = sqlite3.connect('FoodwasteAppdatabase.db')
+        cursor = connection.cursor()
+        cursor.execute("SELECT EnvAnagramMixedWords FROM EnvironmnentaAnagram")
+        correct_words = [row[0] for row in cursor.fetchall()]
+        connection.close()
+
+        # Calculate the score
+        correct_count = 0
+        total_words = len(correct_words)
+        incorrect_words = []
+
+        for i in range(total_words):
+            user_word = form_data[i].strip().lower()
+            correct_word = correct_words[i].strip().lower()
+
+            if user_word == correct_word:
+                correct_count += 1
+            else:
+                # Add to incorrect_words for feedback
+                incorrect_words.append({"mixed_word": get_mixed_anagram_words()[i], "correct_word": correct_word})
+
+        # Calculate percentage score
+        score_percentage = (correct_count / total_words) * 100 if total_words > 0 else 0
+
+        # Flash result and redirect based on the score
+        if score_percentage >= 80:
+            flash(f'Congratulations! You scored {score_percentage:.2f}%.', 'success')
+            return redirect(url_for('user_account'))  # Redirect to homepage
+        elif score_percentage < 50:
+            # Display the correct answers for words the user got wrong
+            flash(f'Your score is {score_percentage:.2f}%. You need to score at least 50% to pass.', 'warning')
+            flash("Here are the correct arrangements for the words you missed:", "info")
+            for word_info in incorrect_words:
+                flash(f"Mixed Word: {word_info['mixed_word']} - Correct Order: {word_info['correct_word']}", "info")
+            # Redirect back to the same route for the user to retake the game
+            return redirect(url_for('user_anagram_game'))
+
+        else:
+            flash(f'Your score is {score_percentage:.2f}%. Please try again to improve your score.', 'warning')
+            return redirect(url_for('user_anagram_game'))
+
+    # For GET requests, render the page with randomized records
+    questions = get_all_questions()  # Retrieve all questions with options from the database
+    questions_prevention_method = get_all_questions_for_prevention_method() 
+    questions_management_method = get_all_questions_for_management_waste()
+    questions_env = get_all_questions_for_environmental_waste()
+    questions_common_cuase = get_all_questions_for_common_cause_waste()
+    random_records = get_random_common_cause_records()
+    grid = create_word_search()
+    mixed_words = get_mixed_anagram_words()
+    
+    user_name = session.get('name', 'User')  # Retrieve the user's name from session
+
+    return render_template('userAccountGame2.html', user_name=user_name, questions=questions, 
+                           questions_env=questions_env, questions_prevention_method=questions_prevention_method,
+                           questions_management_method=questions_management_method, questions_common_cuase=questions_common_cuase, 
+                           records=random_records, grid=grid, mixed_words=mixed_words)
 
 
-
-
-
+# Function to arrange the words
 
 
 
@@ -1203,18 +1297,18 @@ def UserAnswersEnvironmentalManagement():
         # Calculate the correct answer percentage and get incorrect questions
         correct_percentage, incorrect_questions = calculate_correct_answer_percentage(user_answers, "FOOD WASTE ON THE ENVIRONMENT")
 
-        # Redirect based on the correct percentage
-        if correct_percentage >= 1:
-            flash(f'Congratulations! You answered {correct_percentage:.2f}% of questions correctly! You can now take the game', 'success')
-            return redirect(url_for('user_account'))
+        # Redirect based on the score
+        if correct_percentage >= 50:
+            flash(f'Congratulations! You answered {correct_percentage:.2f}% of questions correctly! You can now take the game.', 'success')
+            return redirect(url_for('user_anagram_game'))  # Redirect to the game route
         else:
-            flash(f'Sorry, you need to score at least 1% of the quiz before you can proceed. You scored {correct_percentage:.2f}%. Please review your answers.', 'warning')
-            return render_template('homepage.html', user_name=user_name, incorrect_questions=incorrect_questions, questions=questions, 
-                           questions_env=questions_env, questions_prevention_method=questions_prevention_method,
-                           questions_management_method=questions_management_method, 
-                           questions_common_cuase=questions_common_cuase, records=random_records)
+            flash(f'Sorry, you need to score at least 50% of the quiz before you can play the game. You scored {correct_percentage:.2f}%. Please review your answers.', 'warning')
+            # Render the homepage with the incorrect questions displayed
+            return render_template('homepage.html', user_name=user_name, incorrect_questions=incorrect_questions, questions=questions,
+                                   questions_env=questions_env, questions_prevention_method=questions_prevention_method,
+                                   questions_management_method=questions_management_method, questions_common_cuase=questions_common_cuase, records=random_records)
 
-    return render_template('homepage.html', user_name=user_name, questions=questions, 
+    return render_template('homepage.html', user_name=user_name, questions=questions,
                            questions_env=questions_env, questions_prevention_method=questions_prevention_method,
                            questions_management_method=questions_management_method, 
                            questions_common_cuase=questions_common_cuase, records=random_records)

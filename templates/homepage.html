@@ -24,7 +24,8 @@
       <div class="nav-links">
         <a href="{{ url_for('user_account') }}">Home</a>
  
-        <a href="{{ url_for('user_account_game') }}">Games</a>
+        <a href="#" x-on:click="openHome('game_instrcutions')">Games</a>
+
         <a href="">Contact Us</a>
         <a href="/logout">Log Out</a>
       </div>
@@ -96,23 +97,23 @@
         <p>Learn the basics of food waste and its impact on society</p><br>
         <button x-on:click="openHome('add_new_questions')" class="submit-button" style="background-color: grey;">Click to learn more</button>
       </div>
-<!--COMMON CAUSES AND MISCONCEPTION OF FOOD WASTE-->
+               <!--COMMON CAUSES AND MISCONCEPTION OF FOOD WASTE-->
       <div class="card" >
         <div class="card-icon">❓</div>
         <h3>Common Causes and Misconceptions of Food Waste</h3>
         <p>Understand why food waste occurs and common myths</p><br>
         <button  x-on:click="openHome('add_new_question_options')" class="submit-button" style="background-color: grey;">Click to learn more</button>
       </div>
-<!--FOOD WASTE ON THE ENVRONMENT-->
+              <!--FOOD WASTE ON THE ENVRONMENT-->
       <div class="card">
         <div class="card-icon">🌍</div>
         <h3>Food Waste on the Environment</h3>
-        <p>Discover how food waste affects our environment</p>
+        <p>After taking this quiz, you will unlock our Anagram Game</p>
         <br>
         <button  x-on:click="openHome('provide_question_answers')" class="submit-button" style="background-color: grey;">Click to learn more</button>
       
       </div>
-<!--FOOD WASTE PREVENTION METHOD-->
+                  <!--FOOD WASTE PREVENTION METHOD-->
       <div class="card" >
         <div class="card-icon">🛡️</div>
         <h3>Food Waste Prevention Methods</h3>
@@ -121,7 +122,7 @@
         <button  x-on:click="openHome('update_question_options')" class="submit-button" style="background-color: grey;">Click to learn more</button>
       
       </div>
-<!--FOOD WASTE MANAGEMENT METHOD-->
+                 <!--FOOD WASTE MANAGEMENT METHOD-->
       <div class="card" >
         <div class="card-icon">♻️</div>
         <h3>Food Waste Management Methods</h3>
@@ -134,6 +135,52 @@
 
 
 
+
+
+
+    <!--GAME INSTRUCTIONS-->
+    <div class="cards-container" x-show="game_instrcutions" x-cloak>
+        <div class="card">
+          <div class="card-icon">🍎</div>
+          <h3>Food Waste General Knowledge and Understanding</h3>
+          <p>After taking this quiz, you will gain access to our word search game</p><br>
+          <button x-on:click="openHome('add_new_questions')" class="submit-button" style="background-color: grey;">Take Quiz</button>
+        </div>
+                 <!--COMMON CAUSES AND MISCONCEPTION OF FOOD WASTE-->
+        <div class="card" >
+          <div class="card-icon">❓</div>
+          <h3>Common Causes and Misconceptions of Food Waste</h3>
+          <p>After taking this quiz, you will gain access to our matching word game</p><br>
+          <button  x-on:click="openHome('add_new_question_options')" class="submit-button" style="background-color: grey;">Take Quiz</button>
+        </div>
+                <!--FOOD WASTE ON THE ENVRONMENT-->
+        <div class="card">
+          <div class="card-icon">🌍</div>
+          <h3>Food Waste on the Environment</h3>
+          <p>DAfter taking the quiz, you will unlock our Anagram Game</p>
+          <br>
+          <button  x-on:click="openHome('provide_question_answers')" class="submit-button" style="background-color: grey;">Take Quiz</button>
+        
+        </div>
+                    <!--FOOD WASTE PREVENTION METHOD-->
+        <div class="card" >
+          <div class="card-icon">🛡️</div>
+          <h3>Food Waste Prevention Methods</h3>
+          <p>Learn effective strategies to prevent food waste</p>
+          <br>
+          <button  x-on:click="openHome('update_question_options')" class="submit-button" style="background-color: grey;">Click to learn more</button>
+        
+        </div>
+                   <!--FOOD WASTE MANAGEMENT METHOD-->
+        <div class="card" >
+          <div class="card-icon">♻️</div>
+          <h3>Food Waste Management Methods</h3>
+          <p>Explore ways to manage and reduce food waste</p>
+          <br>
+          <button  x-on:click="openHome('view_all_questions')" class="submit-button" style="background-color: grey;">Click to learn more</button>
+        
+        </div>
+      </div>
 
 
 

@@ -130,6 +130,19 @@
 
 
       <div class="card">
+        <h3>ADD WORDS FOR ENVIROBMENTAL ANAGRAM GAME</h3>
+        <div>
+          <button
+            class="section"
+            x-on:click="openHome('create_environmental_anagram_game')"
+          >
+            ADD
+          </button>
+        </div>
+      </div>
+
+
+      <div class="card">
         <h3>VIEW ALL USER ACCOUNT</h3>
         <div>
           <button
@@ -257,6 +270,35 @@
 
 
 
+
+<!--ADD WORDS FOR THE ENVIRONMENTAL ANAGRAM GAME-->
+<form method="POST" action="/add_words_for_environmental_anagram_game">
+  <div class="quiz-section" x-show="create_environmental_anagram_game" x-cloak>
+    <div class="input-field">
+      <label for="dropdown">DEFAULT CATEGORY</label>
+      <select id="dropdown"  required>
+        <option value="FOOD WASTE ON THE ENVIRONMENT" disabled selected>FOOD WASTE ON THE ENVIRONMENT</option>
+        
+      </select>
+    </div>
+    <div class="input-field">
+      <label for="text-input">Enter the text description</label>
+      <input
+        type="text"
+        id="text-input"
+        name="anagram_text_description"
+        placeholder="Enter the text description"
+        required
+      />
+    </div>
+
+   
+
+    <div>
+      <button type="submit" class="submit-button">Submit</button>
+    </div>
+  </div>
+</form>
 
 
 

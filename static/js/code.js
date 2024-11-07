@@ -10,6 +10,8 @@ document.addEventListener("alpine:init", () => {
       add_new_admin_user_account: false,
       view_all_user_account: false,
       create_common_cause_game: false,
+      create_environmental_anagram_game:false,
+      game_instrcutions:false,
 
       openHome(currentSection) {
         this.Admin_Home_Page = true;
@@ -21,6 +23,8 @@ document.addEventListener("alpine:init", () => {
         this.add_new_admin_user_account = false;
         this.view_all_user_account = false;
         this.create_common_cause_game = false;
+        this.create_environmental_anagram_game=false;
+        this.game_instrcutions=false;
 
         if (currentSection == "add_new_questions") {
           this.Admin_Home_Page = false;
@@ -46,6 +50,12 @@ document.addEventListener("alpine:init", () => {
         } else if (currentSection == "create_common_cause_game") {
           this.Admin_Home_Page = false;
           this.create_common_cause_game = true;
+        }else if (currentSection == "create_environmental_anagram_game") {
+          this.Admin_Home_Page = false;
+          this.create_environmental_anagram_game = true;
+        }else if (currentSection == "game_instrcutions") {
+          this.Admin_Home_Page = false;
+          this.game_instrcutions = true;
         }
       },
 
@@ -56,3 +66,7 @@ document.addEventListener("alpine:init", () => {
     };
   });
 });
+
+
+
+
