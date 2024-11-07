@@ -16,6 +16,7 @@
       src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
     ></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+   
   </head>
   <body x-data="FoodwasteApp">
     <!-- STYLE BETTER WITHOUT MATERIALIZE -->
@@ -143,6 +144,18 @@
 
 
       <div class="card">
+        <h3>ADD IMAGES AND WORDS FOR THE PREVENTION GAME</h3>
+        <div>
+          <button
+            class="section"
+            x-on:click="openHome('prevention_Image_game')"
+          >
+            ADD
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
         <h3>VIEW ALL USER ACCOUNT</h3>
         <div>
           <button
@@ -266,6 +279,53 @@
     </div>
   </div>
 </form>
+
+
+
+
+
+
+
+<!--ADD WORDS FOR THE PREVENTION GAME-->
+<form method="POST" action="/add_words_and_images_for_prevention_game" enctype="multipart/form-data">
+  <div class="quiz-section" x-show="prevention_Image_game" x-cloak>
+    <div class="input-field">
+      <label for="dropdown">DEFAULT CATEGORY</label>
+      <select id="dropdown"  required>
+        <option value="FOOD WASTE PREVENTION METHOD" disabled selected>FOOD WASTE PREVENTION METHOD</option>
+        
+      </select>
+    </div>
+    <div class="input-field">
+      <label for="text-input">Enter the text description</label>
+      <input
+        type="text"
+        id="text-input"
+        name="text_description"
+        placeholder="Enter the text description"
+        required
+      />
+    </div>
+
+    <div class="input-field">
+      <label for="alphabet-select_prv">Select an Alphabet Letter</label>
+      <select id="alphabet-select_prv" name="alphabet-select_prv" required>
+          <option value="" disabled selected>Select a letter</option>
+      </select>
+    </div>
+  
+
+  <div class="input-field">
+    <label for="image-upload">Upload an Image</label>
+    <input type="file" id="image-upload" name="prevention_image" accept="image/*" required />
+  </div>
+
+    <div>
+      <button type="submit" class="submit-button">Submit</button>
+    </div>
+  </div>
+</form>
+
 
 
 
@@ -490,20 +550,56 @@
       });
     </script>
 
-    <script>
-      document.addEventListener("DOMContentLoaded", function() {
-          const selectElement = document.getElementById("alphabet-select");
-          
-          // Loop through the alphabet (A to Z)
+    <script src="/static/js/code.js" defer></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+    
+
+<script>
+  // Function to populate the alphabet in the select element
+  function populateAlphabetSelect() {
+      const selectElement = document.getElementById("alphabet-select");
+
+      // Check if the element is available
+      if (selectElement) {
           for (let i = 65; i <= 90; i++) {
-              const letter = String.fromCharCode(i); // Convert ASCII code to letter
+              const letter = String.fromCharCode(i);
               const option = document.createElement("option");
               option.value = letter;
               option.textContent = letter;
               selectElement.appendChild(option);
           }
-      });
-  </script>
+      } else {
+          console.error("Select element not found. Ensure the element's ID is correct and visible.");
+      }
+  }
+
+  // Call the function after a short delay to ensure Alpine.js has rendered elements
+  setTimeout(populateAlphabetSelect, 100);  // You can adjust this delay if needed
+</script>
+
+<script>
+  // Function to populate the alphabet in the select element
+  function populateAlphabetSelect() {
+      const selectElement = document.getElementById("alphabet-select_prv");
+
+      // Check if the element is available
+      if (selectElement) {
+          for (let i = 65; i <= 90; i++) {
+              const letter = String.fromCharCode(i);
+              const option = document.createElement("option");
+              option.value = letter;
+              option.textContent = letter;
+              selectElement.appendChild(option);
+          }
+      } else {
+          console.error("Select element not found. Ensure the element's ID is correct and visible.");
+      }
+  }
+
+  // Call the function after a short delay to ensure Alpine.js has rendered elements
+  setTimeout(populateAlphabetSelect, 100);  // You can adjust this delay if needed
+</script>
   
   </body>
 </html>

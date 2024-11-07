@@ -61,7 +61,24 @@ def create_table_for_common_causes_game():
     ''')
     connection.commit()
     connection.close()
-    
+
+
+
+
+def create_table_for_prevention_game():
+    connection = sqlite3.connect('FoodwasteAppdatabase.db')
+    cursor = connection.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS PreventionGame (
+            id INTEGER PRIMARY KEY,
+            TextColumn TEXT NOT NULL,
+            AlphabetColumn TEXT NOT NULL UNIQUE,
+            PreventionImage BLOB NOT NULL UNIQUE
+        )
+    ''')
+    connection.commit()
+    connection.close()
+
 
 
     
@@ -226,7 +243,7 @@ create_food_waste_management_method_question_table()
 create_user_answer_submission_table() 
 create_table_for_common_causes_game() 
 create_table_for_anagram_environmental_table()
-
+create_table_for_prevention_game()
 
 
 
@@ -790,17 +807,6 @@ def calculate_correct_answer_percentage(user_answers, category):
     return correct_percentage, incorrect_questions
 
 
-
-
-
-
-
-
-
-
-
-
-
 # User account redirected page
 @app.route('/user_account_game', methods=['GET', 'POST'])
 def user_account_game():
@@ -903,6 +909,7 @@ def UserAnswersCommonCause():
     submitted_category = "COMMON CAUSES AND MISCONCEPTION OF FOOD WASTE"
     user_name = session.get('name', 'User')  # Retrieve the user's name from session
     random_records = get_random_common_cause_records()
+    random_records_prevention=get_random_prevention_game_records()
 
     if request.method == 'POST':
         connection = sqlite3.connect('FoodwasteAppdatabase.db')
@@ -939,12 +946,15 @@ def UserAnswersCommonCause():
             flash(f'Sorry, you need to score at least 50% of the quiz before you can play the game. You scored {correct_percentage:.2f}%. Please review your answers.', 'warning')
             return render_template('homepage.html', user_name=user_name, incorrect_questions=incorrect_questions, questions=questions,
                                    questions_env=questions_env, questions_prevention_method=questions_prevention_method,
-                                   questions_management_method=questions_management_method, questions_common_cuase=questions_common_cuase, records=random_records)
+                                   questions_management_method=questions_management_method, 
+                                   questions_common_cuase=questions_common_cuase, 
+                                   records=random_records, random_records_prevention=random_records_prevention)
 
     return render_template('homepage.html', user_name=user_name, questions=questions,
                            questions_env=questions_env, questions_prevention_method=questions_prevention_method,
                            questions_management_method=questions_management_method, 
-                           questions_common_cuase=questions_common_cuase, records=random_records)
+                           questions_common_cuase=questions_common_cuase, 
+                           records=random_records, random_records_prevention=random_records_prevention)
 
 
 
@@ -978,6 +988,98 @@ def CommonCauseGame():
 
     # Pass user name to the template
     return render_template('Administrator.html', user_name=user_name)
+
+
+
+
+
+# Inserting images into the prevention game table
+@app.route('/add_words_and_images_for_prevention_game', methods=['GET', 'POST'])
+def PreventionGame():
+    user_name = session.get('name', 'User')
+
+    if request.method == 'POST':
+        PreventionGameText = request.form['text_description']
+        PreventionGameAlphabet = request.form['alphabet-select_prv']
+        PreventionGameImage = request.files['prevention_image']  # Access the file from request.files
+
+        # Convert the image file to binary data for storing in the database
+        image_data = PreventionGameImage.read()
+
+        connection = sqlite3.connect('FoodwasteAppdatabase.db')
+        cursor = connection.cursor()
+        cursor.execute(
+            'INSERT INTO PreventionGame (TextColumn, AlphabetColumn, PreventionImage) VALUES (?, ?, ?)',
+            (PreventionGameText, PreventionGameAlphabet, image_data)
+        )
+
+        connection.commit()
+        connection.close()
+
+        flash('Successfully added!', 'success')
+        return redirect('/Administrator_account')
+
+    return render_template('Administrator.html', user_name=user_name)
+
+
+
+# Selecting the contents and displaying on the frontend randomizing them
+
+import base64
+
+def get_random_prevention_game_records():
+    connection = sqlite3.connect('FoodwasteAppdatabase.db')
+    cursor = connection.cursor()
+    
+    # Perform the SELECT query to fetch all records without random order
+    cursor.execute('''
+        SELECT id, TextColumn, AlphabetColumn, PreventionImage 
+        FROM PreventionGame
+    ''')
+    
+    # Fetch all records
+    records_prevention = cursor.fetchall()
+    connection.close()
+    
+    # Extract id and TextColumn separately to randomize
+    ids = [row[0] for row in records_prevention]
+    text_columns = [row[1] for row in records_prevention]
+
+    # Randomize id and TextColumn
+    random.shuffle(ids)
+    random.shuffle(text_columns)
+
+    # Combine randomized id and TextColumn with fixed AlphabetColumn and PreventionImage
+    random_records_prevention = [
+        {
+            "id": ids[i],
+            "text_column": text_columns[i],
+            "alphabet_column": records_prevention[i][2],
+            "prevention_image": base64.b64encode(records_prevention[i][3]).decode('utf-8')  # Convert image to base64
+        } 
+        for i in range(len(records_prevention))
+    ]
+    
+    return random_records_prevention
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # Environmental anagram game word creation
 @app.route('/add_words_for_environmental_anagram_game', methods=['GET', 'POST'])
@@ -1039,6 +1141,13 @@ def get_random_common_cause_records():
     ]
     
     return random_records
+
+
+
+
+
+
+
 
 # Final stage of the common cause game
 def common_causes_game_check(form_data):
@@ -1104,13 +1213,15 @@ def user_account_common_word_game():
     random_records = get_random_common_cause_records()
     grid = create_word_search()
     mixed_words = get_mixed_anagram_words()
+    random_records_prevention=get_random_prevention_game_records()
+    random_records_prevention=get_random_prevention_game_records()
     
     user_name = session.get('name', 'User')  # Retrieve the user's name from session
 
     return render_template('userAccountGame1.html', user_name=user_name, questions=questions, 
                            questions_env=questions_env, questions_prevention_method=questions_prevention_method,
                            questions_management_method=questions_management_method, questions_common_cuase=questions_common_cuase, 
-                           records=random_records, grid=grid, mixed_words=mixed_words)
+                           records=random_records, grid=grid, mixed_words=mixed_words, random_records_prevention=random_records_prevention)
 
 # Mixing the words for the anagram game
 
@@ -1190,16 +1301,43 @@ def user_anagram_game():
     random_records = get_random_common_cause_records()
     grid = create_word_search()
     mixed_words = get_mixed_anagram_words()
+    random_records_prevention=get_random_prevention_game_records()
     
     user_name = session.get('name', 'User')  # Retrieve the user's name from session
 
     return render_template('userAccountGame2.html', user_name=user_name, questions=questions, 
                            questions_env=questions_env, questions_prevention_method=questions_prevention_method,
                            questions_management_method=questions_management_method, questions_common_cuase=questions_common_cuase, 
-                           records=random_records, grid=grid, mixed_words=mixed_words)
+                           records=random_records, grid=grid, mixed_words=mixed_words, random_records_prevention=random_records_prevention)
 
 
-# Function to arrange the words
+
+
+
+# Function for the prevention game
+@app.route('/user_account_prevention_game', methods=['GET', 'POST'])
+def userPreventionGame():
+   
+    # For GET requests, render the page with randomized records
+    questions = get_all_questions()  # Retrieve all questions with options from the database
+    questions_prevention_method = get_all_questions_for_prevention_method() 
+    questions_management_method = get_all_questions_for_management_waste()
+    questions_env = get_all_questions_for_environmental_waste()
+    questions_common_cuase = get_all_questions_for_common_cause_waste()
+    random_records = get_random_common_cause_records()
+    grid = create_word_search()
+    mixed_words = get_mixed_anagram_words()
+    random_records_prevention=get_random_prevention_game_records()
+    
+    user_name = session.get('name', 'User')  # Retrieve the user's name from session
+
+    return render_template('userAccountGame3.html', user_name=user_name, questions=questions, 
+                           questions_env=questions_env, questions_prevention_method=questions_prevention_method,
+                           questions_management_method=questions_management_method, questions_common_cuase=questions_common_cuase, 
+                           records=random_records, grid=grid, mixed_words=mixed_words, 
+                           random_records_prevention=random_records_prevention)
+
+
 
 
 
@@ -1361,18 +1499,19 @@ def UserAnswersPreventionMethod():
         # Calculate the correct answer percentage and get incorrect questions
         correct_percentage, incorrect_questions = calculate_correct_answer_percentage(user_answers, "FOOD WASTE PREVENTION METHOD")
 
-        # Redirect based on the correct percentage
-        if correct_percentage >= 50:
-            flash(f'Congratulations! You answered {correct_percentage:.2f}% of questions correctly! You can now take the game', 'success')
-            return redirect(url_for('user_account'))
-        else:
-            flash(f'Sorry, you need to score at least 50% of the quiz before you can proceed. You scored {correct_percentage:.2f}%. Please review your answers.', 'warning')
-            return render_template('homepage.html', user_name=user_name, incorrect_questions=incorrect_questions, questions=questions, 
-                           questions_env=questions_env, questions_prevention_method=questions_prevention_method,
-                           questions_management_method=questions_management_method, 
-                           questions_common_cuase=questions_common_cuase, records=random_records)
 
-    return render_template('homepage.html', user_name=user_name, questions=questions, 
+        # Redirect based on the score
+        if correct_percentage >= 50:
+            flash(f'Congratulations! You answered {correct_percentage:.2f}% of questions correctly! You can now take the game.', 'success')
+            return redirect(url_for('userPreventionGame'))  # Redirect to the game route
+        else:
+            flash(f'Sorry, you need to score at least 50% of the quiz before you can play the game. You scored {correct_percentage:.2f}%. Please review your answers.', 'warning')
+            # Render the homepage with the incorrect questions displayed
+            return render_template('homepage.html', user_name=user_name, incorrect_questions=incorrect_questions, questions=questions,
+                                   questions_env=questions_env, questions_prevention_method=questions_prevention_method,
+                                   questions_management_method=questions_management_method, questions_common_cuase=questions_common_cuase, records=random_records)
+
+    return render_template('homepage.html', user_name=user_name, questions=questions,
                            questions_env=questions_env, questions_prevention_method=questions_prevention_method,
                            questions_management_method=questions_management_method, 
                            questions_common_cuase=questions_common_cuase, records=random_records)

@@ -79,55 +79,22 @@
                 </tr>
             </thead>
             <tbody>
-                {% for record in records %}
-
-
+                {% for record in random_records_prevention %}
                     <tr>
                         <td>{{ record.alphabet_column }} </td>
-                        <td> {{ record.alphabet_column_text }}</td>
+                        <td>
+                            <img src="data:image/png;base64,{{ record.prevention_image }}" alt="Prevention Image" width="100" height="100">
+                        </td>
                         <td>{{ record.id }}</td>
-                        
-                         <td>{{ record.text_column }}</td>
-                    
-                    
-                      </tr>
+                        <td>{{ record.text_column }}</td>
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
 
-<div class="container" x-show="Admin_Home_Page" x-cloak>
 
-  <div class="table-responsive">
-
-    <form method="POST" action="/user_account_common_word_game">
-      <table>
-          <tr>
-              <th>Alphabet</th>
-              <th>Your Answer (ID)</th>
-          </tr>
-          {% for record in records %}
-              <tr>
-                  <!-- Display AlphabetColumn content randomly in the first column -->
-                  <td>{{ record.alphabet_column }}</td>
-                  <!-- Provide input field for user's answer in the second column -->
-                  <td>
-                      <input  type="number" name="answer_{{ record.alphabet_column }}" placeholder="Enter ID">
-                  </td>
-              </tr>
-          {% endfor %}
-      </table>
-      <button type="submit" class="submit-button">Submit</button>
-  </form>
-
-
-  </div>
-
-
-
-
-</div>
 
 
 
@@ -155,27 +122,27 @@
   <div class="card">
     <div class="card-icon">🌍</div>
     <h3>Food Waste on the Environment</h3>
-    <p>After taking the quiz, you will unlock our Anagram Game</p>
+    <p>DAfter taking the quiz, you will unlock our Anagram Game</p>
     <br>
     <button  x-on:click="openHome('provide_question_answers')" class="submit-button" style="background-color: grey;">Take Quiz</button>
   
   </div>
               <!--FOOD WASTE PREVENTION METHOD-->
-  <div class="card" >
-    <div class="card-icon">🛡️</div>
-    <h3>Food Waste Prevention Methods</h3>
-    <p>After taking a quiz, you will unlock a match the column game</p>
-    <br>
-    <button  x-on:click="openHome('update_question_options')" class="submit-button" style="background-color: grey;">Take Quiz</button>
-  
-  </div>
+              <div class="card" >
+                <div class="card-icon">🛡️</div>
+                <h3>Food Waste Prevention Methods</h3>
+                <p>After taking a quiz, you will unlock a match the column game</p>
+                <br>
+                <button  x-on:click="openHome('update_question_options')" class="submit-button" style="background-color: grey;">Take Quiz</button>
+              
+              </div>
              <!--FOOD WASTE MANAGEMENT METHOD-->
   <div class="card" >
     <div class="card-icon">♻️</div>
     <h3>Food Waste Management Methods</h3>
     <p>Explore ways to manage and reduce food waste</p>
     <br>
-    <button  x-on:click="openHome('view_all_questions')" class="submit-button" style="background-color: grey;">Take Quiz</button>
+    <button  x-on:click="openHome('view_all_questions')" class="submit-button" style="background-color: grey;">Click to learn more</button>
   
   </div>
 </div>

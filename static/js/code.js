@@ -12,6 +12,7 @@ document.addEventListener("alpine:init", () => {
       create_common_cause_game: false,
       create_environmental_anagram_game:false,
       game_instrcutions:false,
+      prevention_Image_game: false,
 
       openHome(currentSection) {
         this.Admin_Home_Page = true;
@@ -25,6 +26,7 @@ document.addEventListener("alpine:init", () => {
         this.create_common_cause_game = false;
         this.create_environmental_anagram_game=false;
         this.game_instrcutions=false;
+        this.prevention_Image_game=false;
 
         if (currentSection == "add_new_questions") {
           this.Admin_Home_Page = false;
@@ -56,6 +58,9 @@ document.addEventListener("alpine:init", () => {
         }else if (currentSection == "game_instrcutions") {
           this.Admin_Home_Page = false;
           this.game_instrcutions = true;
+        }else if (currentSection == "prevention_Image_game") {
+          this.Admin_Home_Page = false;
+          this.prevention_Image_game = true;
         }
       },
 
