@@ -72,16 +72,25 @@
         <table class="table table-bordered table-striped">
             <thead>
                 <tr>
-                    <th>Alphabet . Text Answer</th>
-                    <th>ID . Text</th>
+                    <th>Alphabet</th>
+                    <th>Meaning</th>
+                    <th>Number</th>
+                    <th>Definition</th>
                 </tr>
             </thead>
             <tbody>
                 {% for record in records %}
+
+
                     <tr>
-                        <td>{{ record.alphabet_column }} . {{ record.alphabet_column_text }}</td>
-                        <td>{{ record.id }} . {{ record.text_column }}</td>
-                    </tr>
+                        <td>{{ record.alphabet_column }} </td>
+                        <td> {{ record.alphabet_column_text }}</td>
+                        <td>{{ record.id }}</td>
+                        
+                         <td>{{ record.text_column }}</td>
+                    
+                    
+                      </tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -104,12 +113,12 @@
                   <td>{{ record.alphabet_column }}</td>
                   <!-- Provide input field for user's answer in the second column -->
                   <td>
-                      <input type="number" name="answer_{{ record.alphabet_column }}" placeholder="Enter ID">
+                      <input  type="number" name="answer_{{ record.alphabet_column }}" placeholder="Enter ID">
                   </td>
               </tr>
           {% endfor %}
       </table>
-      <button type="submit">Submit</button>
+      <button type="submit" class="submit-button">Submit</button>
   </form>
 
 
