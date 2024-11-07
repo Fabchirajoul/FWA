@@ -61,8 +61,9 @@ def create_table_for_common_causes_game():
     ''')
     connection.commit()
     connection.close()
-
     
+
+
     
     
     
@@ -110,6 +111,23 @@ def create_food_wastre_on_environment_question_table():
     ''')
     connection.commit()
     connection.close()
+    
+    
+def create_tabel_for_anagram_environmental_table():
+    connection = sqlite3.connect('FoodwasteAppdatabase.db')
+    cursor = connection.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS EnvironmnentaAnagram (
+            id INTEGER PRIMARY KEY,
+            QMixedWords TEXT NOT NULL
+        )
+    ''')
+    connection.commit()
+    connection.close()  
+    
+    
+    
+    
   
 def create_food_wastre_prevention_method_question_table():
     connection = sqlite3.connect('FoodwasteAppdatabase.db')
@@ -207,6 +225,7 @@ create_food_wastre_prevention_method_question_table()
 create_food_waste_management_method_question_table()
 create_user_answer_submission_table() 
 create_table_for_common_causes_game() 
+create_tabel_for_anagram_environmental_table()
 
 
 
