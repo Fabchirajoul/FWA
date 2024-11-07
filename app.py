@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 from functools import wraps
+import base64
 
 import random
 matplotlib.use('Agg') 
@@ -1024,9 +1025,6 @@ def PreventionGame():
 
 
 # Selecting the contents and displaying on the frontend randomizing them
-
-import base64
-
 def get_random_prevention_game_records():
     connection = sqlite3.connect('FoodwasteAppdatabase.db')
     cursor = connection.cursor()
@@ -1313,132 +1311,6 @@ def user_anagram_game():
 
 
 
-
-# Function for the prevention game
-@app.route('/user_account_prevention_game', methods=['GET', 'POST'])
-def userPreventionGame():
-    user_name = session.get('name', 'User')  # Retrieve the user's name from the session
-    
-    if request.method == 'POST':
-        # Get the correct_order values from the form submission
-        submitted_orders = request.form.getlist("correct_order")
-
-        connection = sqlite3.connect('FoodwasteAppdatabase.db')
-        cursor = connection.cursor()
-
-        correct_count = 0
-        total_count = len(submitted_orders)
-        incorrect_answers = []
-        
-        # Fetch all prevention game records to compare with submitted orders
-        cursor.execute('SELECT id, AlphabetColumn, PreventionImage, TextColumn FROM PreventionGame')
-        prevention_records = cursor.fetchall()
-        
-        # Check each submitted order for correctness
-        for i, record in enumerate(prevention_records):
-            correct_id = record[0]
-            correct_alphabet = record[1]
-            correct_image = record[2]
-            correct_text = record[3]
-            user_submission = submitted_orders[i].strip()
-            
-            # Verify if the submitted id matches the correct id
-            if str(correct_id) == user_submission:
-                correct_count += 1
-            else:
-                incorrect_answers.append({
-                    "alphabet": correct_alphabet,
-                    "text": correct_text,
-                    "correct_id": correct_id,
-                    "submitted_id": user_submission
-                })
-
-        connection.close()
-
-        # Calculate the percentage of correct answers
-        score_percentage = (correct_count / total_count) * 100 if total_count > 0 else 0
-
-        # Check if the user score meets the threshold to proceed
-        if score_percentage >= 80:
-            flash(f'Congratulations! You scored {score_percentage:.2f}%!', 'success')
-            return redirect(url_for('user_account'))  # Redirect to the homepage
-        else:
-            # Display correct sequence for incorrect answers as feedback
-            flash(f'Your score is {score_percentage:.2f}%. You need at least 80% to pass. Here is the correct sequence for your missed answers:', 'warning')
-            for answer in incorrect_answers:
-                flash(f"Alphabet: {answer['alphabet']} - Correct ID: {answer['correct_id']}, You Entered: {answer['submitted_id']}", "info")
-            return redirect(url_for('userPreventionGame'))  # Redirect to retry the game
-    print()
-    # For GET requests, render the game page with records
-    questions = get_all_questions()
-    questions_prevention_method = get_all_questions_for_prevention_method()
-    questions_management_method = get_all_questions_for_management_waste()
-    questions_env = get_all_questions_for_environmental_waste()
-    questions_common_cuase = get_all_questions_for_common_cause_waste()
-    random_records = get_random_common_cause_records()
-    grid = create_word_search()
-    mixed_words = get_mixed_anagram_words()
-    random_records_prevention = get_random_prevention_game_records()
-
-    return render_template('userAccountGame3.html', user_name=user_name, questions=questions, 
-                           questions_env=questions_env, questions_prevention_method=questions_prevention_method,
-                           questions_management_method=questions_management_method, questions_common_cuase=questions_common_cuase, 
-                           records=random_records, grid=grid, mixed_words=mixed_words, 
-                           random_records_prevention=random_records_prevention)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # FOOD WASTE ON THE ENVIRONMENT
 @app.route('/user_submitted_answers_for_environmental_management', methods=['POST'])
 def UserAnswersEnvironmentalManagement():
@@ -1577,7 +1449,7 @@ def UserAnswersManagementMethod():
     questions_management_method = get_all_questions_for_management_waste()
     questions_env = get_all_questions_for_environmental_waste()
     questions_common_cuase = get_all_questions_for_common_cause_waste()
-    submitted_category = "FOOD WASTE PREVENTION METHOD"
+    submitted_category = "FOOD WASTE MANAGEMENT METHOD"  # Corrected category
     user_name = session.get('name', 'User')  # Retrieve the user's name from session
     random_records = get_random_common_cause_records()
     
@@ -1613,27 +1485,97 @@ def UserAnswersManagementMethod():
         connection.close()
 
         # Calculate the correct answer percentage and get incorrect questions
-        correct_percentage, incorrect_questions = calculate_correct_answer_percentage(user_answers, "FOOD WASTE PREVENTION METHOD")
+        correct_percentage, incorrect_questions = calculate_correct_answer_percentage(user_answers, "FOOD WASTE MANAGEMENT METHOD")  # Ensure correct category here
 
-        # Redirect based on the correct percentage
-        if correct_percentage >= 1:
-            flash(f'Congratulations! You answered {correct_percentage:.2f}% of questions correctly! You can now take the game', 'success')
-            return redirect(url_for('user_account'))
+        # Redirect based on the score
+        if correct_percentage >= 50:
+            flash(f'Congratulations! You answered {correct_percentage:.2f}% of questions correctly! You can now take the game.', 'success')
+            return redirect(url_for('userPreventionGame'))  # Redirect to the game route
         else:
-            flash(f'Sorry, you need to score at least 1% of the quiz before you can proceed. You scored {correct_percentage:.2f}%. Please review your answers.', 'warning')
-            return render_template('homepage.html', user_name=user_name, incorrect_questions=incorrect_questions, questions=questions, 
+            flash(f'Sorry, you need to score at least 50% of the quiz before you can play the game. You scored {correct_percentage:.2f}%. Please review your answers.', 'warning')
+            # Render the homepage with the incorrect questions displayed
+            return render_template('homepage.html', user_name=user_name, incorrect_questions=incorrect_questions, questions=questions,
+                                   questions_env=questions_env, questions_prevention_method=questions_prevention_method,
+                                   questions_management_method=questions_management_method, questions_common_cuase=questions_common_cuase, records=random_records)
+
+    return render_template('homepage.html', user_name=user_name, questions=questions,
                            questions_env=questions_env, questions_prevention_method=questions_prevention_method,
                            questions_management_method=questions_management_method, 
                            questions_common_cuase=questions_common_cuase, records=random_records)
 
-    return render_template('homepage.html', user_name=user_name, questions=questions, 
+
+
+# Function for the prevention game
+@app.route('/user_account_prevention_game', methods=['GET', 'POST'])
+def userPreventionGame():
+    user_name = session.get('name', 'User')  # Retrieve the user's name from the session
+    
+    if request.method == 'POST':
+        # Get the correct_order values from the form submission
+        submitted_orders = request.form.getlist("correct_order")
+
+        connection = sqlite3.connect('FoodwasteAppdatabase.db')
+        cursor = connection.cursor()
+
+        correct_count = 0
+        total_count = len(submitted_orders)
+        incorrect_answers = []
+        
+        # Fetch all prevention game records to compare with submitted orders
+        cursor.execute('SELECT id, AlphabetColumn, PreventionImage, TextColumn FROM PreventionGame')
+        prevention_records = cursor.fetchall()
+        
+        # Check each submitted order for correctness
+        for i, record in enumerate(prevention_records):
+            correct_id = record[0]
+            correct_alphabet = record[1]
+            correct_image = record[2]
+            correct_text = record[3]
+            user_submission = submitted_orders[i].strip()
+            
+            # Verify if the submitted id matches the correct id
+            if str(correct_id) == user_submission:
+                correct_count += 1
+            else:
+                incorrect_answers.append({
+                    "alphabet": correct_alphabet,
+                    "text": correct_text,
+                    "correct_id": correct_id,
+                    "submitted_id": user_submission
+                })
+
+        connection.close()
+
+        # Calculate the percentage of correct answers
+        score_percentage = (correct_count / total_count) * 100 if total_count > 0 else 0
+
+        # Check if the user score meets the threshold to proceed
+        if score_percentage >= 80:
+            flash(f'Congratulations! You scored {score_percentage:.2f}%!', 'success')
+            return redirect(url_for('user_account'))  # Redirect to the homepage
+        else:
+            # Display correct sequence for incorrect answers as feedback
+            flash(f'Your score is {score_percentage:.2f}%. You need at least 80% to pass. Here is the correct sequence for your missed answers:', 'warning')
+            for answer in incorrect_answers:
+                flash(f"Alphabet: {answer['alphabet']} - Correct ID: {answer['correct_id']}, You Entered: {answer['submitted_id']}", "info")
+            return redirect(url_for('userPreventionGame'))  # Redirect to retry the game
+    print()
+    # For GET requests, render the game page with records
+    questions = get_all_questions()
+    questions_prevention_method = get_all_questions_for_prevention_method()
+    questions_management_method = get_all_questions_for_management_waste()
+    questions_env = get_all_questions_for_environmental_waste()
+    questions_common_cuase = get_all_questions_for_common_cause_waste()
+    random_records = get_random_common_cause_records()
+    grid = create_word_search()
+    mixed_words = get_mixed_anagram_words()
+    random_records_prevention = get_random_prevention_game_records()
+
+    return render_template('userAccountGame3.html', user_name=user_name, questions=questions, 
                            questions_env=questions_env, questions_prevention_method=questions_prevention_method,
-                           questions_management_method=questions_management_method, 
-                           questions_common_cuase=questions_common_cuase, records=random_records)
-
-
-
-
+                           questions_management_method=questions_management_method, questions_common_cuase=questions_common_cuase, 
+                           records=random_records, grid=grid, mixed_words=mixed_words, 
+                           random_records_prevention=random_records_prevention)
 
 
 
