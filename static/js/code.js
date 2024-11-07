@@ -9,6 +9,7 @@ document.addEventListener("alpine:init", () => {
       view_all_questions: false,
       add_new_admin_user_account: false,
       view_all_user_account: false,
+      create_common_cause_game: false,
 
       openHome(currentSection) {
         this.Admin_Home_Page = true;
@@ -19,6 +20,7 @@ document.addEventListener("alpine:init", () => {
         this.view_all_questions = false;
         this.add_new_admin_user_account = false;
         this.view_all_user_account = false;
+        this.create_common_cause_game = false;
 
         if (currentSection == "add_new_questions") {
           this.Admin_Home_Page = false;
@@ -41,6 +43,9 @@ document.addEventListener("alpine:init", () => {
         } else if (currentSection == "view_all_user_account") {
           this.Admin_Home_Page = false;
           this.view_all_user_account = true;
+        } else if (currentSection == "create_common_cause_game") {
+          this.Admin_Home_Page = false;
+          this.create_common_cause_game = true;
         }
       },
 

@@ -115,6 +115,20 @@
         </div>
       </div>
 
+
+      <div class="card">
+        <h3>ADD WORDS FOR COMMON CAUSE GAME</h3>
+        <div>
+          <button
+            class="section"
+            x-on:click="openHome('create_common_cause_game')"
+          >
+            ADD
+          </button>
+        </div>
+      </div>
+
+
       <div class="card">
         <h3>VIEW ALL USER ACCOUNT</h3>
         <div>
@@ -190,6 +204,120 @@
         </div>
       </div>
     </form>
+
+
+
+
+<!--ADD WORDS FOR THE COMMON CAUSE GAME-->
+<form method="POST" action="/add_words_for_common_cause_game">
+  <div class="quiz-section" x-show="create_common_cause_game" x-cloak>
+    <div class="input-field">
+      <label for="dropdown">DEFAULT CATEGORY</label>
+      <select id="dropdown"  required>
+        <option value="COMMON CAUSES AND MISCONCEPTION OF FOOD WASTE" disabled selected>COMMON CAUSES AND MISCONCEPTION OF FOOD WASTE</option>
+        
+      </select>
+    </div>
+    <div class="input-field">
+      <label for="text-input">Enter the text description</label>
+      <input
+        type="text"
+        id="text-input"
+        name="text_description"
+        placeholder="Enter the text description"
+        required
+      />
+    </div>
+
+    <div class="input-field">
+      <label for="alphabet-select">Select an Alphabet Letter</label>
+      <select id="alphabet-select" name="alphabet_letter" required>
+          <option value="" disabled selected>Select a letter</option>
+      </select>
+  </div>
+  
+
+  <div class="input-field">
+    <label for="text-input">Provide an answer to the text</label>
+    <input
+      type="text"
+      id="text-input"
+      name="common_Cause_game_correct_answer"
+      placeholder="Enter the text description"
+      required
+    />
+  </div>
+
+    <div>
+      <button type="submit" class="submit-button">Submit</button>
+    </div>
+  </div>
+</form>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     <!--ADD NEW QUESTION OPTIONS-->
     <form method="POST" action="/Add_new_question_options">
       <div class="quiz-section" x-show="add_new_question_options" x-cloak>
@@ -319,5 +447,21 @@
         });
       });
     </script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+          const selectElement = document.getElementById("alphabet-select");
+          
+          // Loop through the alphabet (A to Z)
+          for (let i = 65; i <= 90; i++) {
+              const letter = String.fromCharCode(i); // Convert ASCII code to letter
+              const option = document.createElement("option");
+              option.value = letter;
+              option.textContent = letter;
+              selectElement.appendChild(option);
+          }
+      });
+  </script>
+  
   </body>
 </html>

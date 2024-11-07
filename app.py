@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 from functools import wraps
 
-
+import random
 matplotlib.use('Agg') 
 
 app = Flask(__name__)
@@ -46,6 +46,24 @@ def create_administrative_user_table():
     ''')
     connection.commit()
     connection.close()
+
+
+def create_table_for_common_causes_game():
+    connection = sqlite3.connect('FoodwasteAppdatabase.db')
+    cursor = connection.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS CommonCausesGame (
+            id INTEGER PRIMARY KEY,
+            TextColumn TEXT NOT NULL,
+            AlphabetColumn TEXT NOT NULL UNIQUE,
+            AlphabetColumnText TEXT NOT NULL UNIQUE
+        )
+    ''')
+    connection.commit()
+    connection.close()
+
+    
+    
     
     
 def create_question_table():
@@ -187,7 +205,8 @@ create_common_cause_question_table()
 create_food_wastre_on_environment_question_table() 
 create_food_wastre_prevention_method_question_table()
 create_food_waste_management_method_question_table()
-create_user_answer_submission_table()  
+create_user_answer_submission_table() 
+create_table_for_common_causes_game() 
 
 
 
@@ -448,12 +467,14 @@ def user_account():
     questions_management_method = get_all_questions_for_management_waste()
     questions_env = get_all_questions_for_environmental_waste()
     questions_common_cuase = get_all_questions_for_common_cause_waste()
+    random_records = get_random_common_cause_records()
     
     user_name = session.get('name', 'User')  # Retrieve the user's name from the session
 
     return render_template('homepage.html', user_name=user_name, questions=questions, 
                            questions_env=questions_env, questions_prevention_method=questions_prevention_method,
-                           questions_management_method=questions_management_method, questions_common_cuase=questions_common_cuase)
+                           questions_management_method=questions_management_method, 
+                           questions_common_cuase=questions_common_cuase, records=random_records)
 
 
 
@@ -636,6 +657,7 @@ def get_all_questions():
 
 
 
+
 # Answer route for general waste
 @app.route('/user_submitted_answers', methods=['POST'])
 def UserAnswers():
@@ -646,6 +668,7 @@ def UserAnswers():
     questions_common_cuase = get_all_questions_for_common_cause_waste()
     submitted_category = "FOOD WASTE GENERAL KNOWLEDGE"
     user_name = session.get('name', 'User')  # Retrieve the user's name from session
+    random_records = get_random_common_cause_records()
 
     if request.method == 'POST':
         connection = sqlite3.connect('FoodwasteAppdatabase.db')
@@ -677,24 +700,25 @@ def UserAnswers():
         # Calculate the correct answer percentage and get incorrect questions
         correct_percentage, incorrect_questions = calculate_correct_answer_percentage(user_answers, "FOOD WASTE GENERAL KNOWLEDGE")
 
-        # Flash messages based on the score
-        if correct_percentage >= 1:
-            flash(f'Congratulations! You answered {correct_percentage:.2f}% of questions correctly! You can now take the game', 'success')
+        # Redirect based on the score
+        if correct_percentage >= 50:
+            flash(f'Congratulations! You answered {correct_percentage:.2f}% of questions correctly! You can now take the game.', 'success')
+            return redirect(url_for('user_account_game'))  # Redirect to the game route
         else:
-            flash(f'Sorry, you need to score at least 1% of the quiz before you can play the game. You scored {correct_percentage:.2f}%. Please review your answers.', 'warning')
-
-        # Render the template with incorrect questions, if any
-        return render_template('homepage.html', user_name=user_name, incorrect_questions=incorrect_questions, questions=questions,
-                               questions_env=questions_env, questions_prevention_method=questions_prevention_method,
-                               questions_management_method=questions_management_method, questions_common_cuase=questions_common_cuase)
+            flash(f'Sorry, you need to score at least 50% of the quiz before you can play the game. You scored {correct_percentage:.2f}%. Please review your answers.', 'warning')
+            # Render the homepage with the incorrect questions displayed
+            return render_template('homepage.html', user_name=user_name, incorrect_questions=incorrect_questions, questions=questions,
+                                   questions_env=questions_env, questions_prevention_method=questions_prevention_method,
+                                   questions_management_method=questions_management_method, questions_common_cuase=questions_common_cuase, records=random_records)
 
     return render_template('homepage.html', user_name=user_name, questions=questions,
                            questions_env=questions_env, questions_prevention_method=questions_prevention_method,
-                           questions_management_method=questions_management_method, questions_common_cuase=questions_common_cuase)
+                           questions_management_method=questions_management_method, 
+                           questions_common_cuase=questions_common_cuase, records=random_records)
 
 
 
-# Function to calculate the percentage of correct answers
+# Function to calculate the percentage of correct answers for general
 def calculate_correct_answer_percentage(user_answers, category):
     connection = sqlite3.connect('FoodwasteAppdatabase.db')
     cursor = connection.cursor()
@@ -703,72 +727,46 @@ def calculate_correct_answer_percentage(user_answers, category):
     total_questions = len(user_answers)
     incorrect_questions = []
 
+    print(f"Calculating correct answer percentage for category: {category}")
+
     for question_id, user_answer in user_answers.items():
-        # Select the appropriate query based on the category
-        if category == "FOOD WASTE GENERAL KNOWLEDGE":
-            cursor.execute(
-                "SELECT q.Question, qoa.QuestionOptionAnswer "
-                "FROM Questions q "
-                "JOIN QuestionsOptionsAnswer qoa ON q.Question_id = qoa.Question_Id "
-                "WHERE q.Question_id = ?",
-                (question_id,)
-            )
-        elif category == "COMMON CAUSES AND MISCONCEPTION OF FOOD WASTE":
-            cursor.execute(
-                "SELECT ccq.Question, qoa.QuestionOptionAnswer "
-                "FROM CommonCauseQuestions ccq "
-                "JOIN QuestionsOptionsAnswer qoa ON ccq.Question_id = qoa.Question_Id "
-                "WHERE ccq.Question_id = ?",
-                (question_id,)
-            )
-        elif category == "FOOD WASTE ON THE ENVIRONMENT":
-            cursor.execute(
-                "SELECT env.Question, qoa.QuestionOptionAnswer "
-                "FROM EnvironmentWasteQuestions env "
-                "JOIN QuestionsOptionsAnswer qoa ON env.Question_id = qoa.Question_Id "
-                "WHERE env.Question_id = ?",
-                (question_id,)
-            )
-        elif category == "FOOD WASTE PREVENTION METHOD":
-            cursor.execute(
-                "SELECT prv.Question, qoa.QuestionOptionAnswer "
-                "FROM PrevemtionMethodQuestions prv "
-                "JOIN QuestionsOptionsAnswer qoa ON prv.Question_id = qoa.Question_Id "
-                "WHERE prv.Question_id = ?",
-                (question_id,)
-            )
-        elif category == "FOOD WASTE MANAGEMENT METHOD":
-            cursor.execute(
-                "SELECT mng.Question, qoa.QuestionOptionAnswer "
-                "FROM ManagementMethodQuestions mng "
-                "JOIN QuestionsOptionsAnswer qoa ON mng.Question_id = qoa.Question_Id "
-                "WHERE mng.Question_id = ?",
-                (question_id,)
-            )
+        # Log the current question_id and user answer
+        print(f"Processing question_id: {question_id} with user answer: {user_answer}")
 
-        # Fetch the result
-        question_data = cursor.fetchone()
+        # Query to fetch the correct answer based on Question_Id and Category
+        query = """
+            SELECT QuestionOptionAnswer
+            FROM QuestionsOptionsAnswer
+            WHERE Question_Id = ? AND Category = ?
+        """
+        
+        cursor.execute(query, (question_id, category))
+        correct_answer_data = cursor.fetchone()
 
-        if question_data:
-            question_text, correct_answer = question_data
+        if correct_answer_data:
+            correct_answer = correct_answer_data[0]
+            print(f"Correct answer for question_id {question_id} in category {category}: {correct_answer}")
+
             # Check if the user's answer matches the correct answer
             if str(user_answer).strip().lower() == str(correct_answer).strip().lower():
                 correct_count += 1
             else:
-                # Append the question details to the incorrect_questions list if the answer is wrong
+                # Append the incorrect answer details without the question text
                 incorrect_questions.append({
                     "question_id": question_id,
                     "category": category,
-                    "question_text": question_text,
                     "user_answer": user_answer,
                     "correct_answer": correct_answer
                 })
+        else:
+            print(f"No correct answer found for question_id {question_id} in category {category}")
 
     # Close the database connection
     connection.close()
 
     # Calculate the percentage of correct answers
     correct_percentage = (correct_count / total_questions) * 100 if total_questions > 0 else 0
+    print(f"Correct answer percentage for category {category}: {correct_percentage}%")
 
     return correct_percentage, incorrect_questions
 
@@ -778,307 +776,10 @@ def calculate_correct_answer_percentage(user_answers, category):
 
 
 
-# app route for the common cause management
-@app.route('/user_submitted_answers_for_common_cause', methods=['POST'])
-def UserAnswersCommonCause():
-    questions = get_all_questions()  # Retrieve all questions with options from the database
-    questions_prevention_method = get_all_questions_for_prevention_method() 
-    questions_management_method = get_all_questions_for_management_waste()
-    questions_env = get_all_questions_for_environmental_waste()
-    questions_common_cuase = get_all_questions_for_common_cause_waste()
-    submitted_category = "COMMON CAUSES AND MISCONCEPTION OF FOOD WASTE"
-    user_name = session.get('name', 'User')  # Retrieve the user's name from session
-    
-    if request.method == 'POST':
-        connection = sqlite3.connect('FoodwasteAppdatabase.db')
-        cursor = connection.cursor()
 
-        # Gather user answers for comparison
-        user_answers = {}
 
-        # Loop through form data to retrieve each question's answer
-        for key, answer in request.form.items():
-            if key.startswith("answer_"):
-                question_id = key.split("_")[1]  # Extract question ID from the input name
-                user_answers[question_id] = answer  # Store the answer in user_answers dictionary
 
-                # Fetch question text and handle NoneType
-                question_data = cursor.execute("SELECT Question FROM CommonCauseQuestions WHERE Question_id=?", (question_id,)).fetchone()
-                
-                if question_data:
-                    question_text = question_data[0]
-                    
-                    # Insert the question and its answer into the SubmitAnswers table
-                    cursor.execute(
-                        'INSERT INTO SubmitAnswers (Question_Id, Firstname, Category, Question, QuestionAnswer) VALUES (?, ?, ?, ?, ?)',
-                        (question_id, user_name, submitted_category, question_text, answer)
-                    )
-                else:
-                    # Log an error if the question_id does not exist in the database
-                    print(f"Warning: Question ID {question_id} not found in CommonCauseQuestions table.")
 
-        connection.commit()
-        connection.close()
-
-        # Calculate the correct answer percentage and get incorrect questions
-        correct_percentage, incorrect_questions = calculate_correct_answer_percentage(user_answers, "COMMON CAUSES AND MISCONCEPTION OF FOOD WASTE")
-
-        # Redirect based on the correct percentage
-        if correct_percentage >= 1:
-            flash(f'Congratulations! You answered {correct_percentage:.2f}% of questions correctly! You can now take the game', 'success')
-            return redirect(url_for('user_account'))
-        else:
-            flash(f'Sorry, you need to score at least 1% of the quiz before you can proceed. You scored {correct_percentage:.2f}%. Please review your answers.', 'warning')
-            return render_template('homepage.html', user_name=user_name, incorrect_questions=incorrect_questions, questions=questions, 
-                           questions_env=questions_env, questions_prevention_method=questions_prevention_method,
-                           questions_management_method=questions_management_method, questions_common_cuase=questions_common_cuase)
-
-    return render_template('homepage.html', user_name=user_name, questions=questions, 
-                           questions_env=questions_env, questions_prevention_method=questions_prevention_method,
-                           questions_management_method=questions_management_method, questions_common_cuase=questions_common_cuase)
-
-
-
-
-
-
-
-# FOOD WASTE ON THE ENVIRONMENT
-@app.route('/user_submitted_answers_for_environmental_management', methods=['POST'])
-def UserAnswersEnvironmentalManagement():
-    questions = get_all_questions()  # Retrieve all questions with options from the database
-    questions_prevention_method = get_all_questions_for_prevention_method() 
-    questions_management_method = get_all_questions_for_management_waste()
-    questions_env = get_all_questions_for_environmental_waste()
-    questions_common_cuase = get_all_questions_for_common_cause_waste()
-    submitted_category = "FOOD WASTE ON THE ENVIRONMENT"
-    user_name = session.get('name', 'User')  # Retrieve the user's name from session
-    
-    if request.method == 'POST':
-        connection = sqlite3.connect('FoodwasteAppdatabase.db')
-        cursor = connection.cursor()
-
-        # Gather user answers for comparison
-        user_answers = {}
-
-        # Loop through form data to retrieve each question's answer
-        for key, answer in request.form.items():
-            if key.startswith("answer_"):
-                question_id = key.split("_")[1]  # Extract question ID from the input name
-                user_answers[question_id] = answer  # Store the answer in user_answers dictionary
-
-                # Fetch question text and handle NoneType
-                question_data = cursor.execute("SELECT Question FROM EnvironmentWasteQuestions WHERE Question_id=?", (question_id,)).fetchone()
-                
-                if question_data:
-                    question_text = question_data[0]
-                    
-                    # Insert the question and its answer into the SubmitAnswers table
-                    cursor.execute(
-                        'INSERT INTO SubmitAnswers (Question_Id, Firstname, Category, Question, QuestionAnswer) VALUES (?, ?, ?, ?, ?)',
-                        (question_id, user_name, submitted_category, question_text, answer)
-                    )
-                else:
-                    # Log an error if the question_id does not exist in the database
-                    print(f"Warning: Question ID {question_id} not found in EnvironmentWasteQuestions table.")
-
-        connection.commit()
-        connection.close()
-
-        # Calculate the correct answer percentage and get incorrect questions
-        correct_percentage, incorrect_questions = calculate_correct_answer_percentage(user_answers, "FOOD WASTE ON THE ENVIRONMENT")
-
-        # Redirect based on the correct percentage
-        if correct_percentage >= 1:
-            flash(f'Congratulations! You answered {correct_percentage:.2f}% of questions correctly! You can now take the game', 'success')
-            return redirect(url_for('user_account'))
-        else:
-            flash(f'Sorry, you need to score at least 1% of the quiz before you can proceed. You scored {correct_percentage:.2f}%. Please review your answers.', 'warning')
-            return render_template('homepage.html', user_name=user_name, incorrect_questions=incorrect_questions, questions=questions, 
-                           questions_env=questions_env, questions_prevention_method=questions_prevention_method,
-                           questions_management_method=questions_management_method, questions_common_cuase=questions_common_cuase)
-
-    return render_template('homepage.html', user_name=user_name, questions=questions, 
-                           questions_env=questions_env, questions_prevention_method=questions_prevention_method,
-                           questions_management_method=questions_management_method, questions_common_cuase=questions_common_cuase)
-
-
-
-# Food waste prevention method
-@app.route('/user_submitted_answers_for_food_waste_prevention_methof', methods=['POST'])
-def UserAnswersPreventionMethod():
-    questions = get_all_questions()  # Retrieve all questions with options from the database
-    questions_prevention_method = get_all_questions_for_prevention_method() 
-    questions_management_method = get_all_questions_for_management_waste()
-    questions_env = get_all_questions_for_environmental_waste()
-    questions_common_cuase = get_all_questions_for_common_cause_waste()
-    submitted_category = "FOOD WASTE PREVENTION METHOD"
-    user_name = session.get('name', 'User')  # Retrieve the user's name from session
-    
-    if request.method == 'POST':
-        connection = sqlite3.connect('FoodwasteAppdatabase.db')
-        cursor = connection.cursor()
-
-        # Gather user answers for comparison
-        user_answers = {}
-
-        # Loop through form data to retrieve each question's answer
-        for key, answer in request.form.items():
-            if key.startswith("answer_"):
-                question_id = key.split("_")[1]  # Extract question ID from the input name
-                user_answers[question_id] = answer  # Store the answer in user_answers dictionary
-
-                # Fetch question text and handle NoneType
-                question_data = cursor.execute("SELECT Question FROM PrevemtionMethodQuestions WHERE Question_id=?", (question_id,)).fetchone()
-                
-                if question_data:
-                    question_text = question_data[0]
-                    
-                    # Insert the question and its answer into the SubmitAnswers table
-                    cursor.execute(
-                        'INSERT INTO SubmitAnswers (Question_Id, Firstname, Category, Question, QuestionAnswer) VALUES (?, ?, ?, ?, ?)',
-                        (question_id, user_name, submitted_category, question_text, answer)
-                    )
-                else:
-                    # Log an error if the question_id does not exist in the database
-                    print(f"Warning: Question ID {question_id} not found in PrevemtionMethodQuestions table.")
-
-        connection.commit()
-        connection.close()
-
-        # Calculate the correct answer percentage and get incorrect questions
-        correct_percentage, incorrect_questions = calculate_correct_answer_percentage(user_answers, "FOOD WASTE PREVENTION METHOD")
-
-        # Redirect based on the correct percentage
-        if correct_percentage >= 1:
-            flash(f'Congratulations! You answered {correct_percentage:.2f}% of questions correctly! You can now take the game', 'success')
-            return redirect(url_for('user_account'))
-        else:
-            flash(f'Sorry, you need to score at least 1% of the quiz before you can proceed. You scored {correct_percentage:.2f}%. Please review your answers.', 'warning')
-            return render_template('homepage.html', user_name=user_name, incorrect_questions=incorrect_questions, questions=questions, 
-                           questions_env=questions_env, questions_prevention_method=questions_prevention_method,
-                           questions_management_method=questions_management_method, questions_common_cuase=questions_common_cuase)
-
-    return render_template('homepage.html', user_name=user_name, questions=questions, 
-                           questions_env=questions_env, questions_prevention_method=questions_prevention_method,
-                           questions_management_method=questions_management_method, questions_common_cuase=questions_common_cuase)
-
-
-
-# FOOD WASTE MANAGEMENT METHOD
-
-@app.route('/user_submitted_answers_for_food_waste_management_method', methods=['POST'])
-def UserAnswersManagementMethod():
-    questions = get_all_questions()  # Retrieve all questions with options from the database
-    questions_prevention_method = get_all_questions_for_prevention_method() 
-    questions_management_method = get_all_questions_for_management_waste()
-    questions_env = get_all_questions_for_environmental_waste()
-    questions_common_cuase = get_all_questions_for_common_cause_waste()
-    submitted_category = "FOOD WASTE PREVENTION METHOD"
-    user_name = session.get('name', 'User')  # Retrieve the user's name from session
-    
-    if request.method == 'POST':
-        connection = sqlite3.connect('FoodwasteAppdatabase.db')
-        cursor = connection.cursor()
-
-        # Gather user answers for comparison
-        user_answers = {}
-
-        # Loop through form data to retrieve each question's answer
-        for key, answer in request.form.items():
-            if key.startswith("answer_"):
-                question_id = key.split("_")[1]  # Extract question ID from the input name
-                user_answers[question_id] = answer  # Store the answer in user_answers dictionary
-
-                # Fetch question text and handle NoneType
-                question_data = cursor.execute("SELECT Question FROM ManagementMethodQuestions WHERE Question_id=?", (question_id,)).fetchone()
-                
-                if question_data:
-                    question_text = question_data[0]
-                    
-                    # Insert the question and its answer into the SubmitAnswers table
-                    cursor.execute(
-                        'INSERT INTO SubmitAnswers (Question_Id, Firstname, Category, Question, QuestionAnswer) VALUES (?, ?, ?, ?, ?)',
-                        (question_id, user_name, submitted_category, question_text, answer)
-                    )
-                else:
-                    # Log an error if the question_id does not exist in the database
-                    print(f"Warning: Question ID {question_id} not found in ManagementMethodQuestions table.")
-
-        connection.commit()
-        connection.close()
-
-        # Calculate the correct answer percentage and get incorrect questions
-        correct_percentage, incorrect_questions = calculate_correct_answer_percentage(user_answers, "FOOD WASTE PREVENTION METHOD")
-
-        # Redirect based on the correct percentage
-        if correct_percentage >= 1:
-            flash(f'Congratulations! You answered {correct_percentage:.2f}% of questions correctly! You can now take the game', 'success')
-            return redirect(url_for('user_account'))
-        else:
-            flash(f'Sorry, you need to score at least 1% of the quiz before you can proceed. You scored {correct_percentage:.2f}%. Please review your answers.', 'warning')
-            return render_template('homepage.html', user_name=user_name, incorrect_questions=incorrect_questions, questions=questions, 
-                           questions_env=questions_env, questions_prevention_method=questions_prevention_method,
-                           questions_management_method=questions_management_method, questions_common_cuase=questions_common_cuase)
-
-    return render_template('homepage.html', user_name=user_name, questions=questions, 
-                           questions_env=questions_env, questions_prevention_method=questions_prevention_method,
-                           questions_management_method=questions_management_method, questions_common_cuase=questions_common_cuase)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-import random
 
 
 # User account redirected page
@@ -1091,6 +792,7 @@ def user_account_game():
     questions_common_cuase = get_all_questions_for_common_cause_waste()
     submitted_category = "FOOD WASTE PREVENTION METHOD"
     user_name = session.get('name', 'User')  # Retrieve the user's name from session
+    random_records = get_random_common_cause_records()
     
     grid = create_word_search()
 
@@ -1100,7 +802,7 @@ def user_account_game():
     return render_template('userAccountGame.html', user_name=user_name, questions=questions, 
                            questions_env=questions_env, questions_prevention_method=questions_prevention_method,
                            questions_management_method=questions_management_method, questions_common_cuase=questions_common_cuase, 
-                           grid=enumerated_grid, words=words)
+                           grid=enumerated_grid, words=words, submitted_category=submitted_category, records=random_records)
 
 
 # Words to be included in the word search
@@ -1167,6 +869,520 @@ def create_word_search():
                 grid[i][j] = random.choice('ABCDEFGHIJKLMNOPQRSTUVWXYZ')
 
     return grid
+
+
+
+
+# app route for the common cause management
+@app.route('/user_submitted_answers_for_common_cause', methods=['POST'])
+def UserAnswersCommonCause():
+    questions = get_all_questions()  # Retrieve all questions with options from the database
+    questions_prevention_method = get_all_questions_for_prevention_method()
+    questions_management_method = get_all_questions_for_management_waste()
+    questions_env = get_all_questions_for_environmental_waste()
+    questions_common_cuase = get_all_questions_for_common_cause_waste()
+    submitted_category = "COMMON CAUSES AND MISCONCEPTION OF FOOD WASTE"
+    user_name = session.get('name', 'User')  # Retrieve the user's name from session
+    random_records = get_random_common_cause_records()
+
+    if request.method == 'POST':
+        connection = sqlite3.connect('FoodwasteAppdatabase.db')
+        cursor = connection.cursor()
+
+        user_answers = {}
+        for key, answer in request.form.items():
+            if key.startswith("answer_"):
+                question_id = key.split("_")[1]
+                user_answers[question_id] = answer
+
+                # Fetch question text and handle NoneType
+                question_data = cursor.execute("SELECT Question FROM CommonCauseQuestions WHERE Question_id=?", (question_id,)).fetchone()
+                
+                if question_data:
+                    question_text = question_data[0]
+                    cursor.execute(
+                        'INSERT INTO SubmitAnswers (Question_Id, Firstname, Category, Question, QuestionAnswer) VALUES (?, ?, ?, ?, ?)',
+                        (question_id, user_name, submitted_category, question_text, answer)
+                    )
+                else:
+                    print(f"Warning: Question ID {question_id} not found in CommonCauseQuestions table.")
+
+        connection.commit()
+        connection.close()
+
+        # Run the corrected answer percentage calculation
+        correct_percentage, incorrect_questions = calculate_correct_answer_percentage(user_answers, submitted_category)
+
+        if correct_percentage >= 50:
+            flash(f'Congratulations! You answered {correct_percentage:.2f}% of questions correctly! You can now take the game.', 'success')
+            return redirect(url_for('user_account_common_word_game'))
+        else:
+            flash(f'Sorry, you need to score at least 50% of the quiz before you can play the game. You scored {correct_percentage:.2f}%. Please review your answers.', 'warning')
+            return render_template('homepage.html', user_name=user_name, incorrect_questions=incorrect_questions, questions=questions,
+                                   questions_env=questions_env, questions_prevention_method=questions_prevention_method,
+                                   questions_management_method=questions_management_method, questions_common_cuase=questions_common_cuase, records=random_records)
+
+    return render_template('homepage.html', user_name=user_name, questions=questions,
+                           questions_env=questions_env, questions_prevention_method=questions_prevention_method,
+                           questions_management_method=questions_management_method, 
+                           questions_common_cuase=questions_common_cuase, records=random_records)
+
+
+
+
+# Game for the common causes
+@app.route('/add_words_for_common_cause_game', methods=['GET', 'POST'])
+def CommonCauseGame():
+    user_name = session.get('name', 'User')  # Retrieve the user's name from session
+
+    if request.method == 'POST':
+        CoomonCauseGameText = request.form['text_description']
+        AlphabetLetterSelect = request.form['alphabet_letter']
+        CorrectAnswerCommonCause = request.form['common_Cause_game_correct_answer']
+        
+
+        connection = sqlite3.connect('FoodwasteAppdatabase.db')
+        cursor = connection.cursor()
+
+        cursor.execute(
+                'INSERT INTO CommonCausesGame (TextColumn, AlphabetColumn, AlphabetCOlumnText) VALUES (?, ?, ?)',
+                (CoomonCauseGameText, AlphabetLetterSelect, CorrectAnswerCommonCause)
+            )
+  
+        
+        connection.commit()
+        connection.close()
+
+        # Flash success message and redirect
+        flash('successfully added!', 'success')
+        return redirect('/Administrator_account')
+
+    # Pass user name to the template
+    return render_template('Administrator.html', user_name=user_name)
+
+
+
+
+# Randomizing the records in the commonGame table
+
+def get_random_common_cause_records():
+    connection = sqlite3.connect('FoodwasteAppdatabase.db')
+    cursor = connection.cursor()
+    
+    # Perform the SELECT query with ORDER BY RANDOM() to randomize order
+    cursor.execute('''
+        SELECT id, TextColumn, AlphabetColumn, AlphabetColumnText 
+        FROM CommonCausesGame 
+        ORDER BY RANDOM()
+    ''')
+    
+    # Fetch all records
+    records = cursor.fetchall()
+    connection.close()
+    
+    # Format the records as a list of dictionaries for easier template rendering
+    random_records = [
+        {
+            "id": row[0],
+            "text_column": row[1],
+            "alphabet_column": row[2],
+            "alphabet_column_text": row[3]
+        } 
+        for row in records
+    ]
+    
+    return random_records
+
+# Final stage of the common cause game
+def common_causes_game_check(form_data):
+    connection = sqlite3.connect('FoodwasteAppdatabase.db')
+    cursor = connection.cursor()
+
+    correct_count = 0
+    total_questions = len(form_data)
+    incorrect_answers = []
+
+    # Iterate over the form data
+    for alphabet_column, user_answer in form_data.items():
+        if user_answer.isdigit():
+            # Retrieve the actual record for the alphabet from the database
+            cursor.execute('SELECT id FROM CommonCausesGame WHERE AlphabetColumn = ?', (alphabet_column,))
+            correct_id = cursor.fetchone()
+
+            if correct_id:
+                # Check if the user's answer matches the correct ID
+                if int(user_answer) == correct_id[0]:
+                    correct_count += 1
+                else:
+                    incorrect_answers.append({
+                        "alphabet_column": alphabet_column,
+                        "correct_id": correct_id[0],
+                        "user_answer": int(user_answer)
+                    })
+            else:
+                print(f"No matching record found for AlphabetColumn: {alphabet_column}")
+
+    connection.close()
+
+    # Calculate the percentage score
+    score_percentage = (correct_count / total_questions) * 100 if total_questions > 0 else 0
+
+    # Flash result with a unique category for the score
+    if score_percentage >= 50:
+        flash(f'Congratulations! You scored {score_percentage:.2f}%. You answered {correct_count} out of {total_questions} correctly.', 'score_message')
+    else:
+        flash(f'Sorry, your score is {score_percentage:.2f}%. You need at least 50% to pass. You answered {correct_count} out of {total_questions} correctly.', 'score_message')
+
+    # Redirect back to homepage or show results
+    return redirect(url_for('user_account'))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# User account redirected page
+@app.route('/user_account_common_word_game', methods=['GET', 'POST'])
+def user_account_common_word_game():
+    if request.method == 'POST':
+        # Retrieve the form data
+        form_data = request.form.to_dict()
+        # Call the common_causes_game_check function to validate and score the answers
+        return common_causes_game_check(form_data)
+
+    # For GET requests, render the page with randomized records
+    questions = get_all_questions()  # Retrieve all questions with options from the database
+    questions_prevention_method = get_all_questions_for_prevention_method() 
+    questions_management_method = get_all_questions_for_management_waste()
+    questions_env = get_all_questions_for_environmental_waste()
+    questions_common_cuase = get_all_questions_for_common_cause_waste()
+    random_records = get_random_common_cause_records()
+    grid = create_word_search()
+    
+    user_name = session.get('name', 'User')  # Retrieve the user's name from session
+
+    return render_template('userAccountGame1.html', user_name=user_name, questions=questions, 
+                           questions_env=questions_env, questions_prevention_method=questions_prevention_method,
+                           questions_management_method=questions_management_method, questions_common_cuase=questions_common_cuase, 
+                           records=random_records, grid=grid)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# FOOD WASTE ON THE ENVIRONMENT
+@app.route('/user_submitted_answers_for_environmental_management', methods=['POST'])
+def UserAnswersEnvironmentalManagement():
+    questions = get_all_questions()  # Retrieve all questions with options from the database
+    questions_prevention_method = get_all_questions_for_prevention_method() 
+    questions_management_method = get_all_questions_for_management_waste()
+    questions_env = get_all_questions_for_environmental_waste()
+    questions_common_cuase = get_all_questions_for_common_cause_waste()
+    submitted_category = "FOOD WASTE ON THE ENVIRONMENT"
+    user_name = session.get('name', 'User')  # Retrieve the user's name from session
+    random_records = get_random_common_cause_records()
+    
+    if request.method == 'POST':
+        connection = sqlite3.connect('FoodwasteAppdatabase.db')
+        cursor = connection.cursor()
+
+        # Gather user answers for comparison
+        user_answers = {}
+
+        # Loop through form data to retrieve each question's answer
+        for key, answer in request.form.items():
+            if key.startswith("answer_"):
+                question_id = key.split("_")[1]  # Extract question ID from the input name
+                user_answers[question_id] = answer  # Store the answer in user_answers dictionary
+
+                # Fetch question text and handle NoneType
+                question_data = cursor.execute("SELECT Question FROM EnvironmentWasteQuestions WHERE Question_id=?", (question_id,)).fetchone()
+                
+                if question_data:
+                    question_text = question_data[0]
+                    
+                    # Insert the question and its answer into the SubmitAnswers table
+                    cursor.execute(
+                        'INSERT INTO SubmitAnswers (Question_Id, Firstname, Category, Question, QuestionAnswer) VALUES (?, ?, ?, ?, ?)',
+                        (question_id, user_name, submitted_category, question_text, answer)
+                    )
+                else:
+                    # Log an error if the question_id does not exist in the database
+                    print(f"Warning: Question ID {question_id} not found in EnvironmentWasteQuestions table.")
+
+        connection.commit()
+        connection.close()
+
+        # Calculate the correct answer percentage and get incorrect questions
+        correct_percentage, incorrect_questions = calculate_correct_answer_percentage(user_answers, "FOOD WASTE ON THE ENVIRONMENT")
+
+        # Redirect based on the correct percentage
+        if correct_percentage >= 1:
+            flash(f'Congratulations! You answered {correct_percentage:.2f}% of questions correctly! You can now take the game', 'success')
+            return redirect(url_for('user_account'))
+        else:
+            flash(f'Sorry, you need to score at least 1% of the quiz before you can proceed. You scored {correct_percentage:.2f}%. Please review your answers.', 'warning')
+            return render_template('homepage.html', user_name=user_name, incorrect_questions=incorrect_questions, questions=questions, 
+                           questions_env=questions_env, questions_prevention_method=questions_prevention_method,
+                           questions_management_method=questions_management_method, 
+                           questions_common_cuase=questions_common_cuase, records=random_records)
+
+    return render_template('homepage.html', user_name=user_name, questions=questions, 
+                           questions_env=questions_env, questions_prevention_method=questions_prevention_method,
+                           questions_management_method=questions_management_method, 
+                           questions_common_cuase=questions_common_cuase, records=random_records)
+
+
+
+# Food waste prevention method
+@app.route('/user_submitted_answers_for_food_waste_prevention_methof', methods=['POST'])
+def UserAnswersPreventionMethod():
+    questions = get_all_questions()  # Retrieve all questions with options from the database
+    questions_prevention_method = get_all_questions_for_prevention_method() 
+    questions_management_method = get_all_questions_for_management_waste()
+    questions_env = get_all_questions_for_environmental_waste()
+    questions_common_cuase = get_all_questions_for_common_cause_waste()
+    submitted_category = "FOOD WASTE PREVENTION METHOD"
+    user_name = session.get('name', 'User')  # Retrieve the user's name from session
+    random_records = get_random_common_cause_records()
+    
+    if request.method == 'POST':
+        connection = sqlite3.connect('FoodwasteAppdatabase.db')
+        cursor = connection.cursor()
+
+        # Gather user answers for comparison
+        user_answers = {}
+
+        # Loop through form data to retrieve each question's answer
+        for key, answer in request.form.items():
+            if key.startswith("answer_"):
+                question_id = key.split("_")[1]  # Extract question ID from the input name
+                user_answers[question_id] = answer  # Store the answer in user_answers dictionary
+
+                # Fetch question text and handle NoneType
+                question_data = cursor.execute("SELECT Question FROM PrevemtionMethodQuestions WHERE Question_id=?", (question_id,)).fetchone()
+                
+                if question_data:
+                    question_text = question_data[0]
+                    
+                    # Insert the question and its answer into the SubmitAnswers table
+                    cursor.execute(
+                        'INSERT INTO SubmitAnswers (Question_Id, Firstname, Category, Question, QuestionAnswer) VALUES (?, ?, ?, ?, ?)',
+                        (question_id, user_name, submitted_category, question_text, answer)
+                    )
+                else:
+                    # Log an error if the question_id does not exist in the database
+                    print(f"Warning: Question ID {question_id} not found in PrevemtionMethodQuestions table.")
+
+        connection.commit()
+        connection.close()
+
+        # Calculate the correct answer percentage and get incorrect questions
+        correct_percentage, incorrect_questions = calculate_correct_answer_percentage(user_answers, "FOOD WASTE PREVENTION METHOD")
+
+        # Redirect based on the correct percentage
+        if correct_percentage >= 50:
+            flash(f'Congratulations! You answered {correct_percentage:.2f}% of questions correctly! You can now take the game', 'success')
+            return redirect(url_for('user_account'))
+        else:
+            flash(f'Sorry, you need to score at least 50% of the quiz before you can proceed. You scored {correct_percentage:.2f}%. Please review your answers.', 'warning')
+            return render_template('homepage.html', user_name=user_name, incorrect_questions=incorrect_questions, questions=questions, 
+                           questions_env=questions_env, questions_prevention_method=questions_prevention_method,
+                           questions_management_method=questions_management_method, 
+                           questions_common_cuase=questions_common_cuase, records=random_records)
+
+    return render_template('homepage.html', user_name=user_name, questions=questions, 
+                           questions_env=questions_env, questions_prevention_method=questions_prevention_method,
+                           questions_management_method=questions_management_method, 
+                           questions_common_cuase=questions_common_cuase, records=random_records)
+
+
+
+# FOOD WASTE MANAGEMENT METHOD
+
+@app.route('/user_submitted_answers_for_food_waste_management_method', methods=['POST'])
+def UserAnswersManagementMethod():
+    questions = get_all_questions()  # Retrieve all questions with options from the database
+    questions_prevention_method = get_all_questions_for_prevention_method() 
+    questions_management_method = get_all_questions_for_management_waste()
+    questions_env = get_all_questions_for_environmental_waste()
+    questions_common_cuase = get_all_questions_for_common_cause_waste()
+    submitted_category = "FOOD WASTE PREVENTION METHOD"
+    user_name = session.get('name', 'User')  # Retrieve the user's name from session
+    random_records = get_random_common_cause_records()
+    
+    if request.method == 'POST':
+        connection = sqlite3.connect('FoodwasteAppdatabase.db')
+        cursor = connection.cursor()
+
+        # Gather user answers for comparison
+        user_answers = {}
+
+        # Loop through form data to retrieve each question's answer
+        for key, answer in request.form.items():
+            if key.startswith("answer_"):
+                question_id = key.split("_")[1]  # Extract question ID from the input name
+                user_answers[question_id] = answer  # Store the answer in user_answers dictionary
+
+                # Fetch question text and handle NoneType
+                question_data = cursor.execute("SELECT Question FROM ManagementMethodQuestions WHERE Question_id=?", (question_id,)).fetchone()
+                
+                if question_data:
+                    question_text = question_data[0]
+                    
+                    # Insert the question and its answer into the SubmitAnswers table
+                    cursor.execute(
+                        'INSERT INTO SubmitAnswers (Question_Id, Firstname, Category, Question, QuestionAnswer) VALUES (?, ?, ?, ?, ?)',
+                        (question_id, user_name, submitted_category, question_text, answer)
+                    )
+                else:
+                    # Log an error if the question_id does not exist in the database
+                    print(f"Warning: Question ID {question_id} not found in ManagementMethodQuestions table.")
+
+        connection.commit()
+        connection.close()
+
+        # Calculate the correct answer percentage and get incorrect questions
+        correct_percentage, incorrect_questions = calculate_correct_answer_percentage(user_answers, "FOOD WASTE PREVENTION METHOD")
+
+        # Redirect based on the correct percentage
+        if correct_percentage >= 1:
+            flash(f'Congratulations! You answered {correct_percentage:.2f}% of questions correctly! You can now take the game', 'success')
+            return redirect(url_for('user_account'))
+        else:
+            flash(f'Sorry, you need to score at least 1% of the quiz before you can proceed. You scored {correct_percentage:.2f}%. Please review your answers.', 'warning')
+            return render_template('homepage.html', user_name=user_name, incorrect_questions=incorrect_questions, questions=questions, 
+                           questions_env=questions_env, questions_prevention_method=questions_prevention_method,
+                           questions_management_method=questions_management_method, 
+                           questions_common_cuase=questions_common_cuase, records=random_records)
+
+    return render_template('homepage.html', user_name=user_name, questions=questions, 
+                           questions_env=questions_env, questions_prevention_method=questions_prevention_method,
+                           questions_management_method=questions_management_method, 
+                           questions_common_cuase=questions_common_cuase, records=random_records)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

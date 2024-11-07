@@ -63,33 +63,64 @@
     </div>
 
     <!--GENERAL -->
-    <div class="cards-container" x-show="Admin_Home_Page" x-cloak>
-        <h2 class="header">PLAY A WORD GAME</h2>
-        <form method="POST" action="{{ url_for('user_account_game') }}">
-            <table class="crossword-table">
-                {% for row in range(1, 13) %}
-                    <tr>
-                        {% for col in range(1, 13) %}
-                            {% set cell_key = row ~ '_' ~ col %}
-                            {% if cell_key in correct_answers %}
-                                <td class="input-cell">
-                                    <input type="text" name="answer_{{ row }}_{{ col }}" maxlength="1" class="form-control">
-                                </td>
-                            {% else %}
-                                <td></td>
-                            {% endif %}
-                        {% endfor %}
-                    </tr>
-                {% endfor %}
-            </table>
-            <div class="text-center mt-3">
-                <button type="submit" class="submit-button">Submit</button>
-            </div>
-        </form>
-      
-
    
     </div>
+
+
+<div class="container">
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Alphabet . Text Answer</th>
+                    <th>ID . Text</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in records %}
+                    <tr>
+                        <td>{{ record.alphabet_column }} . {{ record.alphabet_column_text }}</td>
+                        <td>{{ record.id }} . {{ record.text_column }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="container">
+
+  <div class="table-responsive">
+
+    <form method="POST" action="/user_account_common_word_game">
+      <table>
+          <tr>
+              <th>Alphabet</th>
+              <th>Your Answer (ID)</th>
+          </tr>
+          {% for record in records %}
+              <tr>
+                  <!-- Display AlphabetColumn content randomly in the first column -->
+                  <td>{{ record.alphabet_column }}</td>
+                  <!-- Provide input field for user's answer in the second column -->
+                  <td>
+                      <input type="number" name="answer_{{ record.alphabet_column }}" placeholder="Enter ID">
+                  </td>
+              </tr>
+          {% endfor %}
+      </table>
+      <button type="submit">Submit</button>
+  </form>
+
+
+  </div>
+
+
+
+
+</div>
+
+
 
 
 

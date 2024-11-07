@@ -40,7 +40,23 @@
         Explore our educational modules below to learn more about food waste
       </p>
 
+    <!-- Display flash messages with user score for the common game -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div id="flash-messages">
+            {% for category, message in messages %}
+                {% if category == 'score_message' %}
+                    <div class="alert alert-success">{{ message }}</div>
+                {% else %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% endwith %}
 
+    
+    <!--Flash message for quiz-->
 
       {% if incorrect_questions %}
       <div id="review-section">
@@ -115,6 +131,7 @@
       
       </div>
     </div>
+
 
 
 
@@ -467,8 +484,19 @@
                     alert.style.transition = "opacity 0.5s ease"; // Smooth fade-out
                     alert.style.opacity = "0"; // Start fade-out
                     setTimeout(() => alert.remove(), 500); // Fully remove after fade-out
-                }, 5000);
+                }, 10000);
             });
+        });
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            setTimeout(function() {
+                var flashMessages = document.getElementById("flash-messages");
+                if (flashMessages) {
+                    flashMessages.style.display = "none";
+                }
+            }, 10000);
         });
     </script>
 
