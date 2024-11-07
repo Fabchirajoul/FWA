@@ -40,6 +40,13 @@
         Explore our educational modules below to learn more about food waste
       </p>
 
+      <h3>GENERAL RULES TO FOLLOW FOR THE MATCH TILES GAME</h3>   
+      <p>1. Study carefully the alignment of the Alphabet, Meaning (Image), Number, and Correct Number to Alphabet </p>
+      <p>2. In the "Correct Number to Alphabet" column, enter one of the numbers from the "Number" column that best describes the "Meaning" Image </p>
+      <p>3. Repeat step 2 until all the "Correct Number to Alphabet" column is mapped out </p>
+      <p>4. Submit your answers </p>
+      <p>Good Luck</p>
+
 
 
     
@@ -67,32 +74,42 @@
     </div>
 
 
-<div class="container">
-    <div class="table-responsive">
-        <table class="table table-bordered table-striped">
-            <thead>
-                <tr>
-                    <th>Alphabet</th>
-                    <th>Meaning</th>
-                    <th>Number</th>
-                    <th>Definition</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for record in random_records_prevention %}
+<form action="/user_account_prevention_game" METHOF="POST">
+    <div class="container">
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead>
                     <tr>
-                        <td>{{ record.alphabet_column }} </td>
-                        <td>
-                            <img src="data:image/png;base64,{{ record.prevention_image }}" alt="Prevention Image" width="100" height="100">
-                        </td>
-                        <td>{{ record.id }}</td>
-                        <td>{{ record.text_column }}</td>
+                        <th>Alphabet</th>
+                        <th>Meaning</th>
+                        <th>Number</th>
+                        <th>Definition</th>
+                        <th>Correct Number to Alphabet</th>
                     </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {% for record in random_records_prevention %}
+                        <tr>
+                            <td>{{ record.alphabet_column }} </td>
+                            <td>
+                                <img src="data:image/png;base64,{{ record.prevention_image }}" alt="Prevention Image" width="100" height="100">
+                            </td>
+                            <td>{{ record.id }}</td>
+                            <td>{{ record.text_column }}</td>
+                            <td><input name="correct_order" class="inpput_games" placeholder="Enter the correct number that represents the alphabet and Image"> </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <button type="submit" class="submit-button">Submit</button>
     </div>
-</div>
+
+   
+
+
+
+</form>
 
 
 

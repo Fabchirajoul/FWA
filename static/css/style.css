@@ -755,6 +755,12 @@ h2 {
     color: #31572c;
 }
 
+.inpput_games{
+    width: 100%;
+    height: 40px;
+    border-radius: 2px;
+}
+
 /* For small screens (mobile phones) */
 @media screen and (max-width: 480px) {
     .baner {

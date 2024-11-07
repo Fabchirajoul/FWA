@@ -1317,25 +1317,75 @@ def user_anagram_game():
 # Function for the prevention game
 @app.route('/user_account_prevention_game', methods=['GET', 'POST'])
 def userPreventionGame():
-   
-    # For GET requests, render the page with randomized records
-    questions = get_all_questions()  # Retrieve all questions with options from the database
-    questions_prevention_method = get_all_questions_for_prevention_method() 
+    user_name = session.get('name', 'User')  # Retrieve the user's name from the session
+    
+    if request.method == 'POST':
+        # Get the correct_order values from the form submission
+        submitted_orders = request.form.getlist("correct_order")
+
+        connection = sqlite3.connect('FoodwasteAppdatabase.db')
+        cursor = connection.cursor()
+
+        correct_count = 0
+        total_count = len(submitted_orders)
+        incorrect_answers = []
+        
+        # Fetch all prevention game records to compare with submitted orders
+        cursor.execute('SELECT id, AlphabetColumn, PreventionImage, TextColumn FROM PreventionGame')
+        prevention_records = cursor.fetchall()
+        
+        # Check each submitted order for correctness
+        for i, record in enumerate(prevention_records):
+            correct_id = record[0]
+            correct_alphabet = record[1]
+            correct_image = record[2]
+            correct_text = record[3]
+            user_submission = submitted_orders[i].strip()
+            
+            # Verify if the submitted id matches the correct id
+            if str(correct_id) == user_submission:
+                correct_count += 1
+            else:
+                incorrect_answers.append({
+                    "alphabet": correct_alphabet,
+                    "text": correct_text,
+                    "correct_id": correct_id,
+                    "submitted_id": user_submission
+                })
+
+        connection.close()
+
+        # Calculate the percentage of correct answers
+        score_percentage = (correct_count / total_count) * 100 if total_count > 0 else 0
+
+        # Check if the user score meets the threshold to proceed
+        if score_percentage >= 80:
+            flash(f'Congratulations! You scored {score_percentage:.2f}%!', 'success')
+            return redirect(url_for('user_account'))  # Redirect to the homepage
+        else:
+            # Display correct sequence for incorrect answers as feedback
+            flash(f'Your score is {score_percentage:.2f}%. You need at least 80% to pass. Here is the correct sequence for your missed answers:', 'warning')
+            for answer in incorrect_answers:
+                flash(f"Alphabet: {answer['alphabet']} - Correct ID: {answer['correct_id']}, You Entered: {answer['submitted_id']}", "info")
+            return redirect(url_for('userPreventionGame'))  # Redirect to retry the game
+    print()
+    # For GET requests, render the game page with records
+    questions = get_all_questions()
+    questions_prevention_method = get_all_questions_for_prevention_method()
     questions_management_method = get_all_questions_for_management_waste()
     questions_env = get_all_questions_for_environmental_waste()
     questions_common_cuase = get_all_questions_for_common_cause_waste()
     random_records = get_random_common_cause_records()
     grid = create_word_search()
     mixed_words = get_mixed_anagram_words()
-    random_records_prevention=get_random_prevention_game_records()
-    
-    user_name = session.get('name', 'User')  # Retrieve the user's name from session
+    random_records_prevention = get_random_prevention_game_records()
 
     return render_template('userAccountGame3.html', user_name=user_name, questions=questions, 
                            questions_env=questions_env, questions_prevention_method=questions_prevention_method,
                            questions_management_method=questions_management_method, questions_common_cuase=questions_common_cuase, 
                            records=random_records, grid=grid, mixed_words=mixed_words, 
                            random_records_prevention=random_records_prevention)
+
 
 
 
