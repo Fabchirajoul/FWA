@@ -60,14 +60,7 @@
        
       </div>
      
-      <div class="words-to-find">
-        <h3>Words to Find:</h3>
-        <ul id="wordList">
-            {% for word in words %}
-                <li class="word-item" data-word="{{ word }}">{{ word }}</li>
-            {% endfor %}
-        </ul>
-    </div>
+ 
     
 
 
@@ -76,6 +69,14 @@
 
     <!--GENERAL -->
     <div class="cards-container" x-show="Admin_Home_Page" x-cloak>
+        <div class="words-to-find">
+            <h3>Words to Find:</h3>
+            <ul id="wordList">
+                {% for word in words %}
+                    <li class="word-item" data-word="{{ word }}">{{ word }}</li>
+                {% endfor %}
+            </ul>
+        </div>
    <div class="">
 
     <h2 class="header">PLAY A WORD GAME</h2>
