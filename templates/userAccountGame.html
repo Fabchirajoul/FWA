@@ -525,6 +525,67 @@
     });
 </script>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let selectedCells = [];
+        let wordGrid = document.getElementById('wordGrid');
+        let wordList = {{ words | tojson }}; // Array of words to find
+        let foundWords = [];
+    
+        wordGrid.addEventListener('click', function (event) {
+            if (event.target.classList.contains('grid-cell')) {
+                event.target.classList.toggle('selected');
+    
+                let cellRow = event.target.getAttribute('data-row');
+                let cellCol = event.target.getAttribute('data-col');
+                let cellLetter = event.target.innerText;
+    
+                // Check if cell is already selected
+                let cellIndex = selectedCells.findIndex(
+                    cell => cell.row === cellRow && cell.col === cellCol
+                );
+    
+                if (cellIndex === -1) {
+                    selectedCells.push({ row: cellRow, col: cellCol, letter: cellLetter });
+                } else {
+                    selectedCells.splice(cellIndex, 1); // Deselect the cell
+                }
+    
+                // Check if selected letters form a word
+                let formedWord = selectedCells.map(cell => cell.letter).join('');
+                if (wordList.includes(formedWord) && !foundWords.includes(formedWord)) {
+                    alert('Found: ' + formedWord);
+    
+                    // Cross out the word in the list
+                    let wordElement = document.querySelector(`.word-item[data-word="${formedWord}"]`);
+                    if (wordElement) {
+                        wordElement.classList.add('found');
+                    }
+    
+                    // Highlight the found cells in the grid
+                    selectedCells.forEach(cell => {
+                        document.querySelector(`.grid-cell[data-row="${cell.row}"][data-col="${cell.col}"]`).classList.add('found');
+                    });
+    
+                    foundWords.push(formedWord); // Add the found word to the list
+                    selectedCells = []; // Clear selection after finding a word
+    
+                    // Check if all words have been found
+                    if (foundWords.length === wordList.length) {
+                        setTimeout(() => {
+                            alert('GAME OVER');
+                            window.location.href = "{{ url_for('user_account') }}"; // Redirect to homepage
+                        }, 1000); // Delay to allow the user to see the message
+                    }
+                }
+            }
+        });
+    });
+    
+    
+    
+</script>
+
 
 </body>
 </html>
