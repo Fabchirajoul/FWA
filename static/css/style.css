@@ -1,11 +1,10 @@
 body {
-    /* font-family: 'Patrick Hand', cursive;  */
     /* font-family: 'DynaPuff', cursive; */
     /* font-family: 'Permanent Marker', cursive; */
     /* font-family: 'Luckiest Guy', cursive; */
     /* background-color: #6a994e;  */
     background-color: #ecf39e;
-    font-size: small;
+    font-size: medium;
     font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
     display: flex;
     flex-direction: column;
@@ -32,7 +31,7 @@ h1 {
     text-shadow: 2px 2px 0 rgba(255, 255, 255, 0.5);
     letter-spacing: 2px;
     margin: 0;
-    font-family: 'Luckiest Guy', cursive;
+    font-family: 'Luckiest Guy';
     color: #31572c;
 }
 
@@ -270,7 +269,7 @@ textarea:focus {
 }
 
 .card h3 {
-    font-family: 'Patrick Hand', cursive;
+    font-family: 'Patrick Hand', 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
     font-size: 1.3em;
     margin: 0 0 10px 0;
     color: white;
@@ -433,7 +432,7 @@ h2 {
     text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.189);
     /* letter-spacing: 2px; */
     margin: 0;
-    font-family: 'Patrick Hand', cursive; 
+    font-family: 'Patrick Hand', 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; 
     color: #31572c;
 }
 
@@ -526,7 +525,7 @@ h2 {
     color: #31572c;
     font-size: 24px;
     margin: 30px 0 15px 0;
-    font-family: 'Patrick Hand', cursive;
+    font-family: 'Patrick Hand', 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
     text-align: left;
 }
 
